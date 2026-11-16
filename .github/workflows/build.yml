@@ -24,25 +24,22 @@ jobs:
           flutter-version: '3.19.0'
           channel: 'stable'
 
-      - name: Prepare project structure
+      - name: Create Flutter Project Structure
         run: |
-          mkdir -p lib
+          # main.dart faylini vaqtinchalik saqlab turamiz
           if [ -f main.dart ]; then
-            mv main.dart lib/main.dart
+            cp main.dart /tmp/main.dart
+          elif [ -f lib/main.dart ]; then
+            cp lib/main.dart /tmp/main.dart
           fi
-          echo "name: linky_app" > pubspec.yaml
-          echo "description: A new Flutter project." >> pubspec.yaml
-          echo "publish_to: 'none'" >> pubspec.yaml
-          echo "environment:" >> pubspec.yaml
-          echo "  sdk: '>=3.0.0 <4.0.0'" >> pubspec.yaml
-          echo "dependencies:" >> pubspec.yaml
-          echo "  flutter:" >> pubspec.yaml
-          echo "    sdk: flutter" >> pubspec.yaml
-          echo "flutter:" >> pubspec.yaml
-          echo "  uses-material-design: true" >> pubspec.yaml
-
-      - name: Install dependencies
-        run: flutter pub get
+          
+          # Hozirgi papkada to'liq yangi flutter loyihasini hosil qilamiz (gradle va barcha fayllar bilan)
+          flutter create . --org com.linky --project-name linky_app --platforms android
+          
+          # O'zimizning main.dart faylimizni joyiga qo'yamiz
+          if [ -f /tmp/main.dart ]; then
+            cp /tmp/main.dart lib/main.dart
+          fi
 
       - name: Build APK
         run: flutter build apk --release
@@ -51,5 +48,5 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: app-release
-          path: build/app/outputs/flutter-apk/app-release.apk
+          path: build
           
