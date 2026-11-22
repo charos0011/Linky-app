@@ -21,7 +21,6 @@ class LinkyApp extends StatelessWidget {
   }
 }
 
-// Umumiy holat (parol, profil va kontaktlar)
 class AppState {
   static String pinCode = '1234';
   static String userName = 'Kamolaxon';
@@ -30,17 +29,16 @@ class AppState {
   static int followers = 1240;
   static int following = 185;
 
-  // Foydalanuvchilar bazasi (nikname va telefon raqam bilan qidirish uchun)
   static final List> allUsers = [
     {
       'id': 'u1',
       'name': 'Aziza Karimova',
       'nickname': '@aziza_k',
       'phone': '+998 90 123 45 67',
-      'lastMessage': 'Salom! Yangi videoni ko‘rdingizmi?',
+      'lastMessage': 'Salom! Yangi videoni kordingizmi?',
       'messages': [
-        'Salom! Yangi videoni ko‘rdingizmi?',
-        'Ha, juda zo‘r chiqibdi!',
+        'Salom! Yangi videoni kordingizmi?',
+        'Ha, juda zor chiqibdi!',
       ],
     },
     {
@@ -48,9 +46,9 @@ class AppState {
       'name': 'Sardorbek',
       'nickname': '@sardor_pro',
       'phone': '+998 91 555 44 33',
-      'lastMessage': 'Bugun kechqurun ko‘rishamizmi?',
+      'lastMessage': 'Bugun kechqurun korishamizmi?',
       'messages': [
-        'Bugun kechqurun ko‘rishamizmi?',
+        'Bugun kechqurun korishamizmi?',
       ],
     },
     {
@@ -69,11 +67,10 @@ class AppState {
       'nickname': '@jasur_dev',
       'phone': '+998 97 222 11 00',
       'lastMessage': 'Yangi versiya tayyormi?',
-      'messages': [],
+      'messages': <String>[],
     },
   ];
 
-  // Hozirgi faol chatlar ro'yxati
   static final List> activeChats = [
     allUsers[0],
     allUsers[1],
@@ -150,7 +147,7 @@ class _LockScreenState extends State<LockScreen> {
                   hintText: '••••',
                   hintStyle: const TextStyle(color: Colors.white54),
                   filled: true,
-                  fillColor: Colors.white.withOpacity(0.2),
+                  fillColor: const Color(0x33FFFFFF),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide.none,
@@ -194,13 +191,13 @@ class MainHomeScreen extends StatefulWidget {
 }
 
 class _MainHomeScreenState extends State<MainHomeScreen> {
-  int _selectedIndex = 2; // Chat bo'limini tez ko'rish uchun 2-indeks
+  int _selectedIndex = 2;
 
   final List<String> _titles = [
-    'Linky — Lenta',
-    'Linky — Qidiruv',
-    'Linky — Chat',
-    'Linky — Profil',
+    'Linky - Lenta',
+    'Linky - Qidiruv',
+    'Linky - Chat',
+    'Linky - Profil',
   ];
 
   @override
@@ -245,7 +242,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
   }
 }
 
-// 3. LENTA BO'LIMI
+// 3. LENTA BOLIMI
 class FeedTab extends StatefulWidget {
   const FeedTab({super.key});
 
@@ -257,13 +254,13 @@ class _FeedTabState extends State<FeedTab> {
   final List> _posts = [
     {
       'author': 'Aziza Karimova',
-      'text': 'Bugun ajoyib kun bo‘ldi! Linky ilovasini sinab ko‘ryapmiz.',
+      'text': 'Bugun ajoyib kun boldi! Linky ilovasini sinab koryapmiz.',
       'likes': 24,
       'liked': false,
     },
     {
       'author': 'Sardorbek',
-      'text': 'Yangi qisqa videolar va do‘stlar bilan chat juda qulay ekan.',
+      'text': 'Yangi qisqa videolar va dostlar bilan chat juda qulay ekan.',
       'likes': 41,
       'liked': false,
     },
@@ -317,6 +314,9 @@ class _FeedTabState extends State<FeedTab> {
         itemCount: _posts.length,
         itemBuilder: (context, index) {
           final post = _posts[index];
+          final bool isLiked = post['liked'] == true;
+          final int likesCount = (post['likes'] as int?) ?? 0;
+
           return Card(
             margin: const EdgeInsets.only(bottom: 12),
             child: Padding(
@@ -325,23 +325,24 @@ class _FeedTabState extends State<FeedTab> {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    post['author'],
+                    post['author'].toString(),
                     style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
                   ),
                   const SizedBox(height: 8),
-                  Text(post['text'], style: const TextStyle(fontSize: 15)),
+                  Text(post['text'].toString(), style: const TextStyle(fontSize: 15)),
                   const SizedBox(height: 10),
                   Row(
                     children: [
                       IconButton(
                         icon: Icon(
-                          post['liked'] ? Icons.favorite : Icons.favorite_border,
-                          color: post['liked'] ? Colors.red : Colors.grey,
+                          isLiked ? Icons.favorite : Icons.favorite_border,
+                          color: isLiked ? Colors.red : Colors.grey,
                         ),
                         onPressed: () {
                           setState(() {
-                            post['liked'] = !post['liked'];
-                            post['likes'] += post['liked'] ? 1 : -1;
+                            final nextLiked = !isLiked;
+                            post['liked'] = nextLiked;
+                            post['likes'] = nextLiked ? likesCount + 1 : likesCount - 1;
                           });
                         },
                       ),
@@ -364,7 +365,7 @@ class _FeedTabState extends State<FeedTab> {
   }
 }
 
-// 4. QIDIRUV BO'LIMI
+// 4. QIDIRUV BOLIMI
 class SearchTab extends StatefulWidget {
   const SearchTab({super.key});
 
@@ -377,8 +378,8 @@ class _SearchTabState extends State<SearchTab> {
 
   @override
   Widget build(BuildContext context) {
+    final q = _query.toLowerCase().trim();
     final filtered = AppState.allUsers.where((user) {
-      final q = _query.toLowerCase().trim();
       return user['name'].toString().toLowerCase().contains(q) ||
           user['nickname'].toString().toLowerCase().contains(q) ||
           user['phone'].toString().toLowerCase().contains(q);
@@ -390,7 +391,7 @@ class _SearchTabState extends State<SearchTab> {
           padding: const EdgeInsets.all(12),
           child: TextField(
             decoration: InputDecoration(
-              hintText: 'Ism, @nikname yoki raqam bo‘yicha qidirish...',
+              hintText: 'Ism, @nikname yoki raqam boyicha qidirish...',
               prefixIcon: const Icon(Icons.search),
               border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
             ),
@@ -407,8 +408,8 @@ class _SearchTabState extends State<SearchTab> {
                   backgroundColor: Color(0xFF4A89F3),
                   child: Icon(Icons.person, color: Colors.white),
                 ),
-                title: Text(user['name']),
-                subtitle: Text("${user['nickname']} • ${user['phone']}"),
+                title: Text(user['name'].toString()),
+                subtitle: Text("${user['nickname']} - ${user['phone']}"),
                 trailing: IconButton(
                   icon: const Icon(Icons.chat, color: Color(0xFF4A89F3)),
                   onPressed: () {
@@ -432,7 +433,7 @@ class _SearchTabState extends State<SearchTab> {
   }
 }
 
-// 5. CHAT RO'YXATI (QIDIRISH VA O'CHIRISH BILAN)
+// 5. CHAT ROYHATI
 class ChatTab extends StatefulWidget {
   const ChatTab({super.key});
 
@@ -443,12 +444,12 @@ class ChatTab extends StatefulWidget {
 class _ChatTabState extends State<ChatTab> {
   String _searchText = '';
 
-  void _deleteChat(int index, Map<String, dynamic> chatUser) {
+  void _deleteChat(Map<String, dynamic> chatUser) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
-        title: const Text('Suhbatni o‘chirish'),
-        content: Text("${chatUser['name']} bilan suhbatni o‘chirmoqchimisiz?"),
+        title: const Text('Suhbatni ochirish'),
+        content: Text("${chatUser['name']} bilan suhbatni ochirmoqchimisiz?"),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(context),
@@ -462,10 +463,10 @@ class _ChatTabState extends State<ChatTab> {
               });
               Navigator.pop(context);
               ScaffoldMessenger.of(context).showSnackBar(
-                SnackBar(content: Text("${chatUser['name']} chatdan o‘chirildi")),
+                SnackBar(content: Text("${chatUser['name']} chatdan ochirildi")),
               );
             },
-            child: const Text('O‘chirish', style: TextStyle(color: Colors.white)),
+            child: const Text('Ochirish', style: TextStyle(color: Colors.white)),
           ),
         ],
       ),
@@ -476,7 +477,6 @@ class _ChatTabState extends State<ChatTab> {
   Widget build(BuildContext context) {
     final query = _searchText.toLowerCase().trim();
 
-    // Agar qidiruv yozilsa, barcha foydalanuvchilar ichidan @nikname yoki telefon raqam/ism bo'yicha izlaydi
     final List> displayList = query.isEmpty
         ? AppState.activeChats
         : AppState.allUsers.where((user) {
@@ -527,19 +527,19 @@ class _ChatTabState extends State<ChatTab> {
                           child: Icon(Icons.person, color: Colors.white),
                         ),
                         title: Text(
-                          chatUser['name'],
+                          chatUser['name'].toString(),
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                         subtitle: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
                             Text(
-                              "${chatUser['nickname']} • ${chatUser['phone']}",
+                              "${chatUser['nickname']} - ${chatUser['phone']}",
                               style: const TextStyle(fontSize: 12, color: Colors.blueGrey),
                             ),
                             const SizedBox(height: 2),
                             Text(
-                              chatUser['lastMessage'] ?? 'Yangi suhbat boshlash',
+                              (chatUser['lastMessage'] ?? 'Yangi suhbat boshlash').toString(),
                               maxLines: 1,
                               overflow: TextOverflow.ellipsis,
                             ),
@@ -562,8 +562,8 @@ class _ChatTabState extends State<ChatTab> {
                         trailing: isInActiveChats
                             ? IconButton(
                                 icon: const Icon(Icons.delete_outline, color: Colors.red),
-                                tooltip: 'Suhbatdoshni o‘chirish',
-                                onPressed: () => _deleteChat(index, chatUser),
+                                tooltip: 'Suhbatdoshni ochirish',
+                                onPressed: () => _deleteChat(chatUser),
                               )
                             : const Icon(Icons.person_add_alt_1, color: Color(0xFF4A89F3)),
                       ),
@@ -593,7 +593,7 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
     final text = _msgController.text.trim();
     if (text.isNotEmpty) {
       setState(() {
-        final List<String> msgs = List<String>.from(widget.user['messages'] ?? []);
+        final List<String> msgs = List<String>.from(widget.user['messages'] ?? <String>[]);
         msgs.add(text);
         widget.user['messages'] = msgs;
         widget.user['lastMessage'] = text;
@@ -604,14 +604,19 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> messages = List<String>.from(widget.user['messages'] ?? []);
+    final List<String> messages = List<String>.from(widget.user['messages'] ?? <String>[]);
 
     return Scaffold(
       appBar: AppBar(
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.user['name'], style: const TextStyle(fontSize: 17, color: Colors.white)),
+            Text(widget.user['name'].toString(), style: const TextStyle(fontSize: 17, color: Colors.white)),
             Text(
-              "${widget.user['nickname']} • ${widget.user['phone']}",
-              style: const TextStyle(fontSize: 12, color: Colors.white70
+              "${widget.user['nickname']} - ${widget.user['phone']}",
+              style: const TextStyle(fontSize: 12, color: Colors.white70),
+            ),
+          ],
+        ),
+        backgroundColor: const Color(0xFF4A89F3),
+        iconTheme: const 
