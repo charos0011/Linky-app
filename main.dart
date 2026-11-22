@@ -611,7 +611,10 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
         title: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(widget.user['name'].toString(), style: const TextStyle(fontSize: 17, color: Colors.white)),
+            Text(
+              widget.user['name'].toString(),
+              style: const TextStyle(fontSize: 17, color: Colors.white),
+            ),
             Text(
               "${widget.user['nickname']} - ${widget.user['phone']}",
               style: const TextStyle(fontSize: 12, color: Colors.white70),
@@ -619,6 +622,4 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
           ],
         ),
         backgroundColor: const Color(0xFF4A89F3),
-        foregroundColor: Colors.white,
-      ),
-      body: Column
+        foregroundColor
