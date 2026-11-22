@@ -218,7 +218,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         ),
         backgroundColor: const Color(0xFF4A89F3),
-        iconTheme: const IconThemeData(color: Colors.white),
+        foregroundColor: Colors.white,
       ),
       body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
@@ -619,4 +619,6 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
           ],
         ),
         backgroundColor: const Color(0xFF4A89F3),
-        iconTheme: const IconThemeData(color
+        foregroundColor: Colors.white,
+      ),
+      body: Column
