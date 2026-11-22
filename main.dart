@@ -29,7 +29,7 @@ class AppState {
   static int followers = 1240;
   static int following = 185;
 
-  static final List> allUsers = [
+  static final List allUsers = [
     {
       'id': 'u1',
       'name': 'Aziza Karimova',
@@ -67,11 +67,11 @@ class AppState {
       'nickname': '@jasur_dev',
       'phone': '+998 97 222 11 00',
       'lastMessage': 'Yangi versiya tayyormi?',
-      'messages': <String>[],
+      'messages': List.empty(growable: true),
     },
   ];
 
-  static final List> activeChats = [
+  static final List activeChats = [
     allUsers[0],
     allUsers[1],
     allUsers[2],
@@ -193,7 +193,7 @@ class MainHomeScreen extends StatefulWidget {
 class _MainHomeScreenState extends State<MainHomeScreen> {
   int _selectedIndex = 2;
 
-  final List<String> _titles = [
+  final List _titles = [
     'Linky - Lenta',
     'Linky - Qidiruv',
     'Linky - Chat',
@@ -202,7 +202,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> pages = [
+    final List pages = [
       const FeedTab(),
       const SearchTab(),
       const ChatTab(),
@@ -214,7 +214,7 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-          _titles[_selectedIndex],
+          _titles[_selectedIndex].toString(),
           style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
         ),
         backgroundColor: const Color(0xFF4A89F3),
@@ -251,7 +251,7 @@ class FeedTab extends StatefulWidget {
 }
 
 class _FeedTabState extends State<FeedTab> {
-  final List> _posts = [
+  final List _posts = [
     {
       'author': 'Aziza Karimova',
       'text': 'Bugun ajoyib kun boldi! Linky ilovasini sinab koryapmiz.',
@@ -444,7 +444,7 @@ class ChatTab extends StatefulWidget {
 class _ChatTabState extends State<ChatTab> {
   String _searchText = '';
 
-  void _deleteChat(Map<String, dynamic> chatUser) {
+  void _deleteChat(dynamic chatUser) {
     showDialog(
       context: context,
       builder: (context) => AlertDialog(
@@ -477,7 +477,7 @@ class _ChatTabState extends State<ChatTab> {
   Widget build(BuildContext context) {
     final query = _searchText.toLowerCase().trim();
 
-    final List> displayList = query.isEmpty
+    final List displayList = query.isEmpty
         ? AppState.activeChats
         : AppState.allUsers.where((user) {
             return user['name'].toString().toLowerCase().contains(query) ||
@@ -578,7 +578,7 @@ class _ChatTabState extends State<ChatTab> {
 
 // SHAXSIY SUHBAT OYNASI
 class DirectChatScreen extends StatefulWidget {
-  final Map<String, dynamic> user;
+  final dynamic user;
 
   const DirectChatScreen({super.key, required this.user});
 
@@ -593,7 +593,7 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
     final text = _msgController.text.trim();
     if (text.isNotEmpty) {
       setState(() {
-        final List<String> msgs = List<String>.from(widget.user['messages'] ?? <String>[]);
+        final List msgs = List.from(widget.user['messages'] ?? List.empty(growable: true));
         msgs.add(text);
         widget.user['messages'] = msgs;
         widget.user['lastMessage'] = text;
@@ -604,7 +604,7 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> messages = List<String>.from(widget.user['messages'] ?? <String>[]);
+    final List messages = List.from(widget.user['messages'] ?? List.empty(growable: true));
 
     return Scaffold(
       appBar: AppBar(
@@ -619,4 +619,4 @@ class _DirectChatScreenState extends State<DirectChatScreen> {
           ],
         ),
         backgroundColor: const Color(0xFF4A89F3),
-        iconTheme: const 
+        iconTheme: const IconThemeData(color
