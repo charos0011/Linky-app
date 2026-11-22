@@ -646,4 +646,6 @@ class _SearchTabState extends State<SearchTab> {
                       onPressed: () {
                         _toggleFollow(user);
                       },
-                      child: Text(i
+                      child: Text(isFollowed ? 'Obunada' : "Obuna bo'lish"),
+                    ),
+                    
