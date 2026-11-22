@@ -115,7 +115,9 @@ class _LockScreenState extends State<LockScreen> {
       _pinController.clear();
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => const MainHomeScreen()),
+        MaterialPageRoute(
+          builder: (context) => const MainHomeScreen(),
+        ),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -141,7 +143,11 @@ class _LockScreenState extends State<LockScreen> {
               const SizedBox(height: 16),
               const Text(
                 'Linky',
-                style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
               const SizedBox(height: 8),
               const Text(
@@ -180,10 +186,15 @@ class _LockScreenState extends State<LockScreen> {
                   style: ElevatedButton.styleFrom(
                     backgroundColor: Colors.white,
                     foregroundColor: const Color(0xFF4A89F3),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
                   ),
                   onPressed: _checkPin,
-                  child: const Text('Ochish', style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold)),
+                  child: const Text(
+                    'Ochish',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  ),
                 ),
               ),
             ],
@@ -204,20 +215,36 @@ class MainHomeScreen extends StatefulWidget {
 
 class _MainHomeScreenState extends State<MainHomeScreen> {
   int _selectedIndex = 2;
-  final List _titles = ['Linky - Lenta', 'Linky - Qidiruv', 'Linky - Chat', 'Linky - Profil'];
+  final List _titles = [
+    'Linky - Lenta',
+    'Linky - Qidiruv',
+    'Linky - Chat',
+    'Linky - Profil',
+  ];
 
   @override
   Widget build(BuildContext context) {
     final List pages = [
       const FeedTab(),
-      SearchTab(onFollowChanged: () => setState(() {})),
+      SearchTab(
+        onFollowChanged: () {
+          setState(() {});
+        },
+      ),
       const ChatTab(),
-      ProfileTab(onProfileUpdated: () => setState(() {})),
+      ProfileTab(
+        onProfileUpdated: () {
+          setState(() {});
+        },
+      ),
     ];
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(_titles[_selectedIndex].toString(), style: const TextStyle(color: Colors.white)),
+        title: Text(
+          _titles[_selectedIndex].toString(),
+          style: const TextStyle(color: Colors.white),
+        ),
         backgroundColor: const Color(0xFF4A89F3),
         foregroundColor: Colors.white,
       ),
@@ -227,7 +254,11 @@ class _MainHomeScreenState extends State<MainHomeScreen> {
         type: BottomNavigationBarType.fixed,
         selectedItemColor: const Color(0xFF4A89F3),
         unselectedItemColor: Colors.grey,
-        onTap: (index) => setState(() => _selectedIndex = index),
+        onTap: (index) {
+          setState(() {
+            _selectedIndex = index;
+          });
+        },
         items: const [
           BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Lenta'),
           BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Qidiruv'),
@@ -267,48 +298,65 @@ class _FeedTabState extends State<FeedTab> {
     final controller = TextEditingController();
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Yangi istoriya joylash'),
-        content: TextField(
-          controller: controller,
-          maxLines: 2,
-          decoration: const InputDecoration(
-            hintText: 'Istoriya matnini yozing...',
-            border: OutlineInputBorder(),
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Yangi istoriya joylash'),
+          content: TextField(
+            controller: controller,
+            maxLines: 2,
+            decoration: const InputDecoration(
+              hintText: 'Istoriya matnini yozing...',
+              border: OutlineInputBorder(),
+            ),
           ),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Bekor qilish')),
-          ElevatedButton(
-            onPressed: () {
-              if (controller.text.trim().isNotEmpty) {
-                setState(() {
-                  AppState.stories.insert(0, {
-                    'author': AppState.userName,
-                    'text': controller.text.trim(),
-                    'isOnline': true,
-                  });
-                });
+          actions: [
+            TextButton(
+              onPressed: () {
                 Navigator.pop(context);
-              }
-            },
-            child: const Text('Joylashtirish'),
-          ),
-        ],
-      ),
+              },
+              child: const Text('Bekor qilish'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (controller.text.trim().isNotEmpty) {
+                  setState(() {
+                    AppState.stories.insert(0, {
+                      'author': AppState.userName,
+                      'text': controller.text.trim(),
+                      'isOnline': true,
+                    });
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Joylashtirish'),
+            ),
+          ],
+        );
+      },
     );
   }
 
   void _viewStoryDialog(dynamic story) {
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: Text(story['author'].toString()),
-        content: Text(story['text'].toString(), style: const TextStyle(fontSize: 16)),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Yopish')),
-        ],
-      ),
+      builder: (context) {
+        return AlertDialog(
+          title: Text(story['author'].toString()),
+          content: Text(
+            story['text'].toString(),
+            style: const TextStyle(fontSize: 16),
+          ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Yopish'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -316,33 +364,42 @@ class _FeedTabState extends State<FeedTab> {
     final controller = TextEditingController();
     showDialog(
       context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Yangi post yozish'),
-        content: TextField(
-          controller: controller,
-          maxLines: 3,
-          decoration: const InputDecoration(hintText: 'Nimani ulashmoqchisiz?'),
-        ),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Bekor qilish')),
-          ElevatedButton(
-            onPressed: () {
-              if (controller.text.trim().isNotEmpty) {
-                setState(() {
-                  _posts.insert(0, {
-                    'author': AppState.userName,
-                    'text': controller.text.trim(),
-                    'likes': 0,
-                    'liked': false,
-                  });
-                });
-                Navigator.pop(context);
-              }
-            },
-            child: const Text('Joylashtirish'),
+      builder: (context) {
+        return AlertDialog(
+          title: const Text('Yangi post yozish'),
+          content: TextField(
+            controller: controller,
+            maxLines: 3,
+            decoration: const InputDecoration(
+              hintText: 'Nimani ulashmoqchisiz?',
+            ),
           ),
-        ],
-      ),
+          actions: [
+            TextButton(
+              onPressed: () {
+                Navigator.pop(context);
+              },
+              child: const Text('Bekor qilish'),
+            ),
+            ElevatedButton(
+              onPressed: () {
+                if (controller.text.trim().isNotEmpty) {
+                  setState(() {
+                    _posts.insert(0, {
+                      'author': AppState.userName,
+                      'text': controller.text.trim(),
+                      'likes': 0,
+                      'liked': false,
+                    });
+                  });
+                  Navigator.pop(context);
+                }
+              },
+              child: const Text('Joylashtirish'),
+            ),
+          ],
+        );
+      },
     );
   }
 
@@ -372,15 +429,26 @@ class _FeedTabState extends State<FeedTab> {
                             child: Icon(Icons.add, color: Colors.white),
                           ),
                           SizedBox(height: 4),
-                          Text('Istoriya', maxLines: 1, overflow: TextOverflow.ellipsis, style: TextStyle(fontSize: 12)),
+                          Text(
+                            'Istoriya',
+                            maxLines: 1,
+                            overflow: TextOverflow.ellipsis,
+                            style: TextStyle(fontSize: 12),
+                          ),
                         ],
                       ),
                     ),
                   );
                 }
                 final story = AppState.stories[index - 1];
+                final String authorText = story['author'].toString();
+                final String firstLetter =
+                    authorText.isNotEmpty ? authorText.substring(0, 1) : '?';
+
                 return GestureDetector(
-                  onTap: () => _viewStoryDialog(story),
+                  onTap: () {
+                    _viewStoryDialog(story);
+                  },
                   child: Container(
                     width: 72,
                     margin: const EdgeInsets.only(right: 10),
@@ -390,13 +458,16 @@ class _FeedTabState extends State<FeedTab> {
                           radius: 26,
                           backgroundColor: Colors.blueAccent,
                           child: Text(
-                            story['author'].toString().substring(0, 1),
-                            style: const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                            firstLetter,
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontWeight: FontWeight.bold,
+                            ),
                           ),
                         ),
                         const SizedBox(height: 4),
                         Text(
-                          story['author'].toString(),
+                          authorText,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
                           style: const TextStyle(fontSize: 12),
@@ -427,10 +498,16 @@ class _FeedTabState extends State<FeedTab> {
                       children: [
                         Text(
                           post['author'].toString(),
-                          style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                          style: const TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 16,
+                          ),
                         ),
                         const SizedBox(height: 8),
-                        Text(post['text'].toString(), style: const TextStyle(fontSize: 15)),
+                        Text(
+                          post['text'].toString(),
+                          style: const TextStyle(fontSize: 15),
+                        ),
                         Row(
                           children: [
                             IconButton(
@@ -442,7 +519,8 @@ class _FeedTabState extends State<FeedTab> {
                                 setState(() {
                                   final nextLiked = !isLiked;
                                   post['liked'] = nextLiked;
-                                  post['likes'] = nextLiked ? likesCount + 1 : likesCount - 1;
+                                  post['likes'] =
+                                      nextLiked ? likesCount + 1 : likesCount - 1;
                                 });
                               },
                             ),
@@ -513,9 +591,15 @@ class _SearchTabState extends State<SearchTab> {
             decoration: InputDecoration(
               hintText: 'Ism, @nikname yoki raqam boyicha qidirish...',
               prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            onChanged: (val) => setState(() => _query = val),
+            onChanged: (val) {
+              setState(() {
+                _query = val;
+              });
+            },
           ),
         ),
         Expanded(
@@ -551,60 +635,15 @@ class _SearchTabState extends State<SearchTab> {
                 title: Text(user['name'].toString()),
                 subtitle: Text(
                   "${user['nickname']} • ${isOnline ? 'Onlayn' : 'Oflayn'}",
-                  style: TextStyle(color: isOnline ? Colors.green[700] : Colors.grey),
+                  style: TextStyle(
+                    color: isOnline ? Colors.green[700] : Colors.grey,
+                  ),
                 ),
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
                     TextButton(
-                      onPressed: () => _toggleFollow(user),
-                      child: Text(isFollowed ? 'Obunada' : "Obuna bo'lish"),
-                    ),
-                    IconButton(
-                      icon: const Icon(Icons.chat, color: Color(0xFF4A89F3)),
                       onPressed: () {
-                        if (!AppState.activeChats.any((c) => c['id'] == user['id'])) {
-                          AppState.activeChats.insert(0, user);
-                        }
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(builder: (context) => DirectChatScreen(user: user)),
-                        ).then((_) => setState(() {}));
+                        _toggleFollow(user);
                       },
-                    ),
-                  ],
-                ),
-              );
-            },
-          ),
-        ),
-      ],
-    );
-  }
-}
-
-// 5. CHAT ROYHATI + ONLAYN/OFLAYN HOLAT
-class ChatTab extends StatefulWidget {
-  const ChatTab({super.key});
-
-  @override
-  State<ChatTab> createState() => _ChatTabState();
-}
-
-class _ChatTabState extends State<ChatTab> {
-  String _searchText = '';
-
-  void _deleteChat(dynamic chatUser) {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Suhbatni ochirish'),
-        content: Text("${chatUser['name']} bilan suhbatni ochirmoqchimisiz?"),
-        actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Bekor qilish')),
-          ElevatedButton(
-            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
-            onPressed: () {
-              setState(() {
-                AppState.activeChats.removeWhere((item) => item['id'] == chatUser['id']);
-      
+                      child: Text(i
