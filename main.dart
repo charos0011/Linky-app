@@ -1,197 +1,427 @@
 import 'package:flutter/material.dart';
 
 void main() {
-  runApp(const MyApp());
+  runApp(const LinkyApp());
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({super.key});
+class LinkyApp extends StatelessWidget {
+  const LinkyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      title: 'Linky',
       debugShowCheckedModeBanner: false,
-      title: 'Video & Chat App',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
-        scaffoldBackgroundColor: Colors.white,
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
       ),
-      home: const AppLockScreen(),
+      home: const LockScreen(),
     );
   }
 }
 
-// 1. ILOVAGA KIRISH KOD-PAROLI
-class AppLockScreen extends StatefulWidget {
-  const AppLockScreen({super.key});
+// Umumiy holat (parol, profil va kontaktlar)
+class AppState {
+  static String pinCode = '1234';
+  static String userName = 'Kamolaxon';
+  static String userNickname = '@kamolaxon_linky';
+  static String userPhone = '+998 94 996 63 38';
+  static int followers = 1240;
+  static int following = 185;
 
-  @override
-  State<AppLockScreen> createState() => _AppLockScreenState();
+  // Foydalanuvchilar bazasi (nikname va telefon raqam bilan qidirish uchun)
+  static final List> allUsers = [
+    {
+      'id': 'u1',
+      'name': 'Aziza Karimova',
+      'nickname': '@aziza_k',
+      'phone': '+998 90 123 45 67',
+      'lastMessage': 'Salom! Yangi videoni ko‘rdingizmi?',
+      'messages': [
+        'Salom! Yangi videoni ko‘rdingizmi?',
+        'Ha, juda zo‘r chiqibdi!',
+      ],
+    },
+    {
+      'id': 'u2',
+      'name': 'Sardorbek',
+      'nickname': '@sardor_pro',
+      'phone': '+998 91 555 44 33',
+      'lastMessage': 'Bugun kechqurun ko‘rishamizmi?',
+      'messages': [
+        'Bugun kechqurun ko‘rishamizmi?',
+      ],
+    },
+    {
+      'id': 'u3',
+      'name': 'Madina',
+      'nickname': '@madina_vibe',
+      'phone': '+998 93 777 88 99',
+      'lastMessage': 'Linky ilovasi menga yoqdi.',
+      'messages': [
+        'Linky ilovasi menga yoqdi.',
+      ],
+    },
+    {
+      'id': 'u4',
+      'name': 'Jasur',
+      'nickname': '@jasur_dev',
+      'phone': '+998 97 222 11 00',
+      'lastMessage': 'Yangi versiya tayyormi?',
+      'messages': [],
+    },
+  ];
+
+  // Hozirgi faol chatlar ro'yxati
+  static final List> activeChats = [
+    allUsers[0],
+    allUsers[1],
+    allUsers[2],
+  ];
 }
 
-class _AppLockScreenState extends State<AppLockScreen> {
-  final TextEditingController _passController = TextEditingController();
+// 1. PAROL EKRANI
+class LockScreen extends StatefulWidget {
+  const LockScreen({super.key});
+
+  @override
+  State<LockScreen> createState() => _LockScreenState();
+}
+
+class _LockScreenState extends State<LockScreen> {
+  final TextEditingController _pinController = TextEditingController();
+
+  void _checkPin() {
+    if (_pinController.text.trim() == AppState.pinCode) {
+      _pinController.clear();
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(builder: (context) => const MainHomeScreen()),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text("Parol noto'g'ri! (Standart parol: 1234)"),
+          backgroundColor: Colors.red,
+        ),
+      );
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.blueAccent,
-      body: Padding(
-        padding: const EdgeInsets.all(24.0),
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.lock_outline, size: 80, color: Colors.white),
-            const SizedBox(height: 16),
-            const Text(
-              "Ilova uchun parolni kiriting",
-              style: TextStyle(fontSize: 20, color: Colors.white, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 24),
-            TextField(
-              controller: _passController,
-              obscureText: true,
-              keyboardType: TextInputType.number,
-              textAlign: TextAlign.center,
-              style: const TextStyle(fontSize: 24, color: Colors.white),
-              decoration: InputDecoration(
-                hintText: "••••",
-                hintStyle: const TextStyle(color: Colors.white54),
-                filled: true,
-                fillColor: Colors.white24,
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+      backgroundColor: const Color(0xFF4A89F3),
+      body: SafeArea(
+        child: Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 28),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              const Icon(Icons.lock, size: 72, color: Colors.white),
+              const SizedBox(height: 20),
+              const Text(
+                'Linky',
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 28,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
-            ),
-            const SizedBox(height: 24),
-            ElevatedButton(
-              onPressed: () {
-                Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (context) => const HomeScreen()),
-                );
-              },
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: Colors.blueAccent,
-                minimumSize: const Size(double.infinity, 50),
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+              const SizedBox(height: 8),
+              const Text(
+                'Ilova uchun parolni kiriting',
+                style: TextStyle(color: Colors.white70, fontSize: 16),
               ),
-              child: const Text("Ochish", style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
-            ),
-          ],
+              const SizedBox(height: 28),
+              TextField(
+                controller: _pinController,
+                obscureText: true,
+                keyboardType: TextInputType.number,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 22,
+                  letterSpacing: 8,
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                ),
+                decoration: InputDecoration(
+                  hintText: '••••',
+                  hintStyle: const TextStyle(color: Colors.white54),
+                  filled: true,
+                  fillColor: Colors.white.withOpacity(0.2),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(14),
+                    borderSide: BorderSide.none,
+                  ),
+                ),
+                onSubmitted: (_) => _checkPin(),
+              ),
+              const SizedBox(height: 20),
+              SizedBox(
+                width: double.infinity,
+                height: 50,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: Colors.white,
+                    foregroundColor: const Color(0xFF4A89F3),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(14),
+                    ),
+                  ),
+                  onPressed: _checkPin,
+                  child: const Text(
+                    'Ochish',
+                    style: TextStyle(fontSize: 17, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ),
         ),
       ),
     );
   }
 }
 
-// 2. ASOSIY SAHIFA VA 4 TA ASOSIY BO'LIM
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+// 2. ASOSIY SAHIFA
+class MainHomeScreen extends StatefulWidget {
+  const MainHomeScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<MainHomeScreen> createState() => _MainHomeScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  int _currentIndex = 0;
+class _MainHomeScreenState extends State<MainHomeScreen> {
+  int _selectedIndex = 2; // Chat bo'limini tez ko'rish uchun 2-indeks
 
-  final List<Widget> _pages = [
-    const FeedTab(),
-    const SearchTab(),
-    const ChatListTab(),
-    const ProfileTab(),
+  final List<String> _titles = [
+    'Linky — Lenta',
+    'Linky — Qidiruv',
+    'Linky — Chat',
+    'Linky — Profil',
   ];
 
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      const FeedTab(),
+      const SearchTab(),
+      const ChatTab(),
+      ProfileTab(
+        onProfileUpdated: () => setState(() {}),
+      ),
+    ];
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text("Video & Chat App"),
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
+        title: Text(
+          _titles[_selectedIndex],
+          style: const TextStyle(color: Colors.white, fontWeight: FontWeight.w600),
+        ),
+        backgroundColor: const Color(0xFF4A89F3),
+        iconTheme: const IconThemeData(color: Colors.white),
       ),
-      body: _pages[_currentIndex],
+      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNavigationBar(
-        currentIndex: _currentIndex,
+        currentIndex: _selectedIndex,
+        type: BottomNavigationBarType.fixed,
+        selectedItemColor: const Color(0xFF4A89F3),
+        unselectedItemColor: Colors.grey,
         onTap: (index) {
           setState(() {
-            _currentIndex = index;
+            _selectedIndex = index;
           });
         },
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Colors.blueAccent,
-        unselectedItemColor: Colors.grey,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.home), label: "Lenta"),
-          BottomNavigationBarItem(icon: Icon(Icons.search), label: "Qidiruv"),
-          BottomNavigationBarItem(icon: Icon(Icons.chat), label: "Chat"),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: "Profil"),
+          BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Lenta'),
+          BottomNavigationBarItem(icon: Icon(Icons.search), label: 'Qidiruv'),
+          BottomNavigationBarItem(icon: Icon(Icons.chat_bubble), label: 'Chat'),
+          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
         ],
       ),
     );
   }
 }
 
-// --- LENTA VA ISTORYALAR BO'LIMI ---
-class FeedTab extends StatelessWidget {
+// 3. LENTA BO'LIMI
+class FeedTab extends StatefulWidget {
   const FeedTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        SizedBox(
-          height: 100,
-          child: ListView.builder(
-            scrollDirection: Axis.horizontal,
-            itemCount: 6,
-            itemBuilder: (context, index) {
-              return Container(
-                margin: const EdgeInsets.all(8),
-                child: Column(
-                  children: [
-                    CircleAvatar(
-                      radius: 30,
-                      backgroundColor: Colors.blueAccent.shade100,
-                      child: const Icon(Icons.person, color: Colors.white),
-                    ),
-                    const SizedBox(height: 4),
-                    Text("Story ${index + 1}", style: const TextStyle(fontSize: 12)),
-                  ],
-                ),
-              );
-            },
+  State<FeedTab> createState() => _FeedTabState();
+}
+
+class _FeedTabState extends State<FeedTab> {
+  final List> _posts = [
+    {
+      'author': 'Aziza Karimova',
+      'text': 'Bugun ajoyib kun bo‘ldi! Linky ilovasini sinab ko‘ryapmiz.',
+      'likes': 24,
+      'liked': false,
+    },
+    {
+      'author': 'Sardorbek',
+      'text': 'Yangi qisqa videolar va do‘stlar bilan chat juda qulay ekan.',
+      'likes': 41,
+      'liked': false,
+    },
+  ];
+
+  void _addPostDialog() {
+    final controller = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Yangi post yozish'),
+        content: TextField(
+          controller: controller,
+          maxLines: 3,
+          decoration: const InputDecoration(
+            hintText: 'Nimani ulashmoqchisiz?',
+            border: OutlineInputBorder(),
           ),
         ),
-        const Divider(height: 1),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Bekor qilish'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (controller.text.trim().isNotEmpty) {
+                setState(() {
+                  _posts.insert(0, {
+                    'author': AppState.userName,
+                    'text': controller.text.trim(),
+                    'likes': 0,
+                    'liked': false,
+                  });
+                });
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Joylashtirish'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: ListView.builder(
+        padding: const EdgeInsets.all(12),
+        itemCount: _posts.length,
+        itemBuilder: (context, index) {
+          final post = _posts[index];
+          return Card(
+            margin: const EdgeInsets.only(bottom: 12),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    post['author'],
+                    style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                  ),
+                  const SizedBox(height: 8),
+                  Text(post['text'], style: const TextStyle(fontSize: 15)),
+                  const SizedBox(height: 10),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          post['liked'] ? Icons.favorite : Icons.favorite_border,
+                          color: post['liked'] ? Colors.red : Colors.grey,
+                        ),
+                        onPressed: () {
+                          setState(() {
+                            post['liked'] = !post['liked'];
+                            post['likes'] += post['liked'] ? 1 : -1;
+                          });
+                        },
+                      ),
+                      Text('${post['likes']}'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        },
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _addPostDialog,
+        backgroundColor: const Color(0xFF4A89F3),
+        foregroundColor: Colors.white,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+}
+
+// 4. QIDIRUV BO'LIMI
+class SearchTab extends StatefulWidget {
+  const SearchTab({super.key});
+
+  @override
+  State<SearchTab> createState() => _SearchTabState();
+}
+
+class _SearchTabState extends State<SearchTab> {
+  String _query = '';
+
+  @override
+  Widget build(BuildContext context) {
+    final filtered = AppState.allUsers.where((user) {
+      final q = _query.toLowerCase().trim();
+      return user['name'].toString().toLowerCase().contains(q) ||
+          user['nickname'].toString().toLowerCase().contains(q) ||
+          user['phone'].toString().toLowerCase().contains(q);
+    }).toList();
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: 'Ism, @nikname yoki raqam bo‘yicha qidirish...',
+              prefixIcon: const Icon(Icons.search),
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+            ),
+            onChanged: (val) => setState(() => _query = val),
+          ),
+        ),
         Expanded(
           child: ListView.builder(
-            itemCount: 4,
+            itemCount: filtered.length,
             itemBuilder: (context, index) {
-              return Card(
-                margin: const EdgeInsets.all(8),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    ListTile(
-                      leading: const CircleAvatar(backgroundColor: Colors.blueAccent, child: Icon(Icons.person, color: Colors.white)),
-                      title: Text("Foydalanuvchi ${index + 1}"),
-                      subtitle: const Text("2 soat oldin"),
-                      trailing: const Icon(Icons.more_vert),
-                    ),
-                    Container(
-                      height: 200,
-                      color: Colors.grey.shade300,
-                      child: const Center(
-                        child: Icon(Icons.play_circle_fill, size: 64, color: Colors.blueAccent),
+              final user = filtered[index];
+              return ListTile(
+                leading: const CircleAvatar(
+                  backgroundColor: Color(0xFF4A89F3),
+                  child: Icon(Icons.person, color: Colors.white),
+                ),
+                title: Text(user['name']),
+                subtitle: Text("${user['nickname']} • ${user['phone']}"),
+                trailing: IconButton(
+                  icon: const Icon(Icons.chat, color: Color(0xFF4A89F3)),
+                  onPressed: () {
+                    if (!AppState.activeChats.any((c) => c['id'] == user['id'])) {
+                      AppState.activeChats.insert(0, user);
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DirectChatScreen(user: user),
                       ),
-                    ),
-                    const Padding(
-                      padding: EdgeInsets.all(12.0),
-                      child: Text("Bu yerda post videolari va matnlari joylashadi..."),
-                    ),
-                  ],
+                    );
+                  },
                 ),
               );
             },
@@ -202,231 +432,186 @@ class FeedTab extends StatelessWidget {
   }
 }
 
-// --- VIDEO QIDIRUV BO'LIMI ---
-class SearchTab extends StatelessWidget {
-  const SearchTab({super.key});
+// 5. CHAT RO'YXATI (QIDIRISH VA O'CHIRISH BILAN)
+class ChatTab extends StatefulWidget {
+  const ChatTab({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(16.0),
-      child: Column(
-        children: [
-          TextField(
-            decoration: InputDecoration(
-              hintText: "Videolarni qidirish...",
-              prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-            ),
-          ),
-          const SizedBox(height: 16),
-          Expanded(
-            child: ListView.builder(
-              itemCount: 5,
-              itemBuilder: (context, index) {
-                return ListTile(
-                  leading: Container(
-                    width: 80,
-                    height: 50,
-                    color: Colors.grey.shade300,
-                    child: const Icon(Icons.play_arrow),
-                  ),
-                  title: Text("Qiziqarli video darslik #${index + 1}"),
-                  subtitle: const Text("Ko'rishlar: 12K • 1 kun oldin"),
-                  onTap: () {},
-                );
-              },
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  State<ChatTab> createState() => _ChatTabState();
 }
 
-// --- CHATLAR RO'YXATI ---
-class ChatListTab extends StatelessWidget {
-  const ChatListTab({super.key});
+class _ChatTabState extends State<ChatTab> {
+  String _searchText = '';
 
-  @override
-  Widget build(BuildContext context) {
-    return ListView.builder(
-      itemCount: 5,
-      itemBuilder: (context, index) {
-        return ListTile(
-          leading: const CircleAvatar(backgroundColor: Colors.blueAccent, child: Icon(Icons.person, color: Colors.white)),
-          title: Text("Suhbatdosh ${index + 1}"),
-          subtitle: const Text("Salom! Ishlar qalay?"),
-          trailing: const Text("14:30", style: TextStyle(color: Colors.grey, fontSize: 12)),
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(builder: (context) => const ChatDetailScreen()),
-            );
-          },
-        );
-      },
-    );
-  }
-}
-
-// YOZISHISH (CHAT ICHKI) OYNASI
-class ChatDetailScreen extends StatelessWidget {
-  const ChatDetailScreen({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text("Suhbatdosh"),
-        backgroundColor: Colors.blueAccent,
-        foregroundColor: Colors.white,
-      ),
-      body: Column(
-        children: [
-          Expanded(
-            child: ListView(
-              padding: const EdgeInsets.all(16),
-              children: const [
-                Align(
-                  alignment: Alignment.centerLeft,
-                  child: Chip(label: Text("Salom! Ilovangiz zo'r chiqmoqda.")),
-                ),
-                Align(
-                  alignment: Alignment.centerRight,
-                  child: Chip(backgroundColor: Colors.blue, label: Text("Rahmat! Birgalikda qilyapmiz.")),
-                ),
-              ],
-            ),
+  void _deleteChat(int index, Map<String, dynamic> chatUser) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: const Text('Suhbatni o‘chirish'),
+        content: Text("${chatUser['name']} bilan suhbatni o‘chirmoqchimisiz?"),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Bekor qilish'),
           ),
-          Container(
-            padding: const EdgeInsets.all(8),
-            color: Colors.grey.shade100,
-            child: Row(
-              children: [
-                const Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: "Xabar yozing...",
-                      border: InputBorder.none,
-                    ),
-                  ),
-                ),
-                IconButton(
-                  icon: const Icon(Icons.send, color: Colors.blueAccent),
-                  onPressed: () {},
-                ),
-              ],
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-// --- PROFIL VA OBUNACHILAR BO'LIMI ---
-class ProfileTab extends StatelessWidget {
-  const ProfileTab({super.key});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.all(24.0),
-      child: Column(
-        children: [
-          const SizedBox(height: 10),
-          Stack(
-            children: [
-              const CircleAvatar(
-                radius: 50,
-                backgroundColor: Colors.blueAccent,
-                child: Icon(Icons.person, size: 60, color: Colors.white),
-              ),
-              Positioned(
-                bottom: 0,
-                right: 0,
-                child: CircleAvatar(
-                  radius: 16,
-                  backgroundColor: Colors.white,
-                  child: IconButton(
-                    padding: EdgeInsets.zero,
-                    icon: const Icon(Icons.camera_alt, size: 16, color: Colors.blueAccent),
-                    onPressed: () {},
-                  ),
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 12),
-          const Text(
-            "Kamolaxon",
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          const SizedBox(height: 4),
-          const Text(
-            "+998 94 996 63 38",
-            style: TextStyle(color: Colors.grey, fontSize: 14),
-          ),
-          const SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              const Column(
-                children: [
-                  Text("1,240", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text("Obunachilar", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                ],
-              ),
-              const SizedBox(width: 32),
-              Container(height: 30, width: 1, color: Colors.grey),
-              const SizedBox(width: 32),
-              const Column(
-                children: [
-                  Text("185", style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text("Obunalar", style: TextStyle(color: Colors.grey, fontSize: 12)),
-                ],
-              ),
-            ],
-          ),
-          const SizedBox(height: 24),
-          ListTile(
-            leading: const Icon(Icons.lock, color: Colors.blueAccent),
-            title: const Text("Ilova kod-parolini o'zgartirish"),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () {},
-          ),
-          ListTile(
-            leading: const Icon(Icons.security, color: Colors.blueAccent),
-            title: const Text("Xavfsizlik va Parollar"),
-            trailing: const Icon(Icons.arrow_forward_ios, size: 16),
-            onTap: () {},
-          ),
-          const Spacer(),
-          ElevatedButton.icon(
+          ElevatedButton(
+            style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
             onPressed: () {
-              Navigator.pushAndRemoveUntil(
-                context,
-                MaterialPageRoute(builder: (context) => const AppLockScreen()),
-                (route) => false,
+              setState(() {
+                AppState.activeChats.removeWhere((item) => item['id'] == chatUser['id']);
+              });
+              Navigator.pop(context);
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text("${chatUser['name']} chatdan o‘chirildi")),
               );
             },
-            icon: const Icon(Icons.logout, color: Colors.white),
-            label: const Text(
-              "Akkauntdan chiqish",
-              style: TextStyle(color: Colors.white, fontSize: 16),
-            ),
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.redAccent,
-              minimumSize: const Size(double.infinity, 50),
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-            ),
+            child: const Text('O‘chirish', style: TextStyle(color: Colors.white)),
           ),
-          const SizedBox(height: 20),
         ],
       ),
     );
   }
+
+  @override
+  Widget build(BuildContext context) {
+    final query = _searchText.toLowerCase().trim();
+
+    // Agar qidiruv yozilsa, barcha foydalanuvchilar ichidan @nikname yoki telefon raqam/ism bo'yicha izlaydi
+    final List> displayList = query.isEmpty
+        ? AppState.activeChats
+        : AppState.allUsers.where((user) {
+            return user['name'].toString().toLowerCase().contains(query) ||
+                user['nickname'].toString().toLowerCase().contains(query) ||
+                user['phone'].toString().toLowerCase().contains(query);
+          }).toList();
+
+    return Column(
+      children: [
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: TextField(
+            decoration: InputDecoration(
+              hintText: '@nikname yoki telefon raqam (+998...) orqali qidiring',
+              prefixIcon: const Icon(Icons.search),
+              suffixIcon: _searchText.isNotEmpty
+                  ? IconButton(
+                      icon: const Icon(Icons.clear),
+                      onPressed: () => setState(() => _searchText = ''),
+                    )
+                  : null,
+              border: OutlineInputBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+            onChanged: (value) => setState(() => _searchText = value),
+          ),
+        ),
+        Expanded(
+          child: displayList.isEmpty
+              ? const Center(
+                  child: Text(
+                    'Suhbatdosh topilmadi',
+                    style: TextStyle(color: Colors.grey, fontSize: 16),
+                  ),
+                )
+              : ListView.builder(
+                  itemCount: displayList.length,
+                  itemBuilder: (context, index) {
+                    final chatUser = displayList[index];
+                    final isInActiveChats =
+                        AppState.activeChats.any((c) => c['id'] == chatUser['id']);
+
+                    return Card(
+                      margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 5),
+                      child: ListTile(
+                        leading: const CircleAvatar(
+                          backgroundColor: Color(0xFF4A89F3),
+                          child: Icon(Icons.person, color: Colors.white),
+                        ),
+                        title: Text(
+                          chatUser['name'],
+                          style: const TextStyle(fontWeight: FontWeight.bold),
+                        ),
+                        subtitle: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              "${chatUser['nickname']} • ${chatUser['phone']}",
+                              style: const TextStyle(fontSize: 12, color: Colors.blueGrey),
+                            ),
+                            const SizedBox(height: 2),
+                            Text(
+                              chatUser['lastMessage'] ?? 'Yangi suhbat boshlash',
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ],
+                        ),
+                        isThreeLine: true,
+                        onTap: () {
+                          if (!isInActiveChats) {
+                            setState(() {
+                              AppState.activeChats.insert(0, chatUser);
+                            });
+                          }
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => DirectChatScreen(user: chatUser),
+                            ),
+                          ).then((_) => setState(() {}));
+                        },
+                        trailing: isInActiveChats
+                            ? IconButton(
+                                icon: const Icon(Icons.delete_outline, color: Colors.red),
+                                tooltip: 'Suhbatdoshni o‘chirish',
+                                onPressed: () => _deleteChat(index, chatUser),
+                              )
+                            : const Icon(Icons.person_add_alt_1, color: Color(0xFF4A89F3)),
+                      ),
+                    );
+                  },
+                ),
+        ),
+      ],
+    );
+  }
 }
+
+// SHAXSIY SUHBAT OYNASI
+class DirectChatScreen extends StatefulWidget {
+  final Map<String, dynamic> user;
+
+  const DirectChatScreen({super.key, required this.user});
+
+  @override
+  State<DirectChatScreen> createState() => _DirectChatScreenState();
+}
+
+class _DirectChatScreenState extends State<DirectChatScreen> {
+  final TextEditingController _msgController = TextEditingController();
+
+  void _sendMessage() {
+    final text = _msgController.text.trim();
+    if (text.isNotEmpty) {
+      setState(() {
+        final List<String> msgs = List<String>.from(widget.user['messages'] ?? []);
+        msgs.add(text);
+        widget.user['messages'] = msgs;
+        widget.user['lastMessage'] = text;
+        _msgController.clear();
+      });
+    }
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final List<String> messages = List<String>.from(widget.user['messages'] ?? []);
+
+    return Scaffold(
+      appBar: AppBar(
+        title: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Text(widget.user['name'], style: const TextStyle(fontSize: 17, color: Colors.white)),
+            Text(
+              "${widget.user['nickname']} • ${widget.user['phone']}",
+              style: const TextStyle(fontSize: 12, color: Colors.white70
