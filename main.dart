@@ -642,10 +642,9 @@ class _SearchTabState extends State<SearchTab> {
                 trailing: Row(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                    TextButton(
-                      onPressed: () {
-                        _toggleFollow(user);
-                      },
-                      child: Text(isFollowed ? 'Obunada' : "Obuna bo'lish"),
-                    ),
-                    
+TextButton(
+  onPressed: () {
+    _toggleFollow(user);
+  },
+  child: Text(isFollowed ? 'Obunada' : "Obuna bo'lish"),
+  
