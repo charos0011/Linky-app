@@ -27,7 +27,7 @@ class AppState {
   static int followers = 1240;
   static int following = 185;
 
-  static final List> users = [
+  static final List users = [
     {
       'id': '1',
       'name': 'Aziza Karimova',
@@ -60,9 +60,9 @@ class AppState {
     },
   ];
 
-  static final List> chats = [users[0], users[1], users[2]];
+  static final List chats = [users[0], users[1], users[2]];
 
-  static final List> stories = [
+  static final List stories = [
     {'author': 'Aziza Karimova', 'text': 'Yangi post joyladim!'},
     {'author': 'Sardorbek', 'text': 'Onlaynman, yozavering!'},
   ];
@@ -83,7 +83,7 @@ class _LockScreenState extends State<LockScreen> {
       _ctrl.clear();
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (_) => const HomeScreen()),
+        MaterialPageRoute(builder: (context) => const HomeScreen()),
       );
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -103,7 +103,14 @@ class _LockScreenState extends State<LockScreen> {
           children: [
             const Icon(Icons.lock, size: 68, color: Colors.white),
             const SizedBox(height: 14),
-            const Text('Linky', style: TextStyle(color: Colors.white, fontSize: 28, fontWeight: FontWeight.bold)),
+            const Text(
+              'Linky',
+              style: TextStyle(
+                color: Colors.white,
+                fontSize: 28,
+                fontWeight: FontWeight.bold,
+              ),
+            ),
             const SizedBox(height: 20),
             TextField(
               controller: _ctrl,
@@ -116,9 +123,12 @@ class _LockScreenState extends State<LockScreen> {
                 hintStyle: const TextStyle(color: Colors.white70),
                 filled: true,
                 fillColor: const Color(0x33FFFFFF),
-                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12), borderSide: BorderSide.none),
+                border: OutlineInputBorder(
+                  borderRadius: BorderRadius.circular(12),
+                  borderSide: BorderSide.none,
+                ),
               ),
-              onSubmitted: (_) => _unlock(),
+              onSubmitted: (v) => _unlock(),
             ),
             const SizedBox(height: 18),
             SizedBox(
@@ -187,24 +197,45 @@ class FeedTab extends StatefulWidget {
 }
 
 class _FeedTabState extends State<FeedTab> {
-  final List> _posts = [
-    {'author': 'Aziza Karimova', 'text': 'Linky ilovasini sinab koryapmiz!', 'likes': 18, 'liked': false},
-    {'author': 'Sardorbek', 'text': 'Yangi chat va lenta juda qulay.', 'likes': 27, 'liked': false},
+  final List _posts = [
+    {
+      'author': 'Aziza Karimova',
+      'text': 'Linky ilovasini sinab koryapmiz!',
+      'likes': 18,
+      'liked': false,
+    },
+    {
+      'author': 'Sardorbek',
+      'text': 'Yangi chat va lenta juda qulay.',
+      'likes': 27,
+      'liked': false,
+    },
   ];
 
   void _addStory() {
     final ctrl = TextEditingController();
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text('Yangi istoriya'),
-        content: TextField(controller: ctrl, decoration: const InputDecoration(hintText: 'Matn...')),
+        content: TextField(
+          controller: ctrl,
+          decoration: const InputDecoration(hintText: 'Matn...'),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Bekor')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Bekor'),
+          ),
           ElevatedButton(
             onPressed: () {
               if (ctrl.text.trim().isNotEmpty) {
-                setState(() => AppState.stories.insert(0, {'author': AppState.name, 'text': ctrl.text.trim()}));
+                setState(() {
+                  AppState.stories.insert(0, {
+                    'author': AppState.name,
+                    'text': ctrl.text.trim(),
+                  });
+                });
                 Navigator.pop(context);
               }
             },
@@ -219,15 +250,29 @@ class _FeedTabState extends State<FeedTab> {
     final ctrl = TextEditingController();
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text('Yangi post'),
-        content: TextField(controller: ctrl, maxLines: 2, decoration: const InputDecoration(hintText: 'Post matni...')),
+        content: TextField(
+          controller: ctrl,
+          maxLines: 2,
+          decoration: const InputDecoration(hintText: 'Post matni...'),
+        ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: const Text('Bekor')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Bekor'),
+          ),
           ElevatedButton(
             onPressed: () {
               if (ctrl.text.trim().isNotEmpty) {
-                setState(() => _posts.insert(0, {'author': AppState.name, 'text': ctrl.text.trim(), 'likes': 0, 'liked': false}));
+                setState(() {
+                  _posts.insert(0, {
+                    'author': AppState.name,
+                    'text': ctrl.text.trim(),
+                    'likes': 0,
+                    'liked': false,
+                  });
+                });
                 Navigator.pop(context);
               }
             },
@@ -257,31 +302,50 @@ class _FeedTabState extends State<FeedTab> {
                       width: 68,
                       child: Column(
                         children: [
-                          CircleAvatar(backgroundColor: Color(0xFF4A89F3), child: Icon(Icons.add, color: Colors.white)),
+                          CircleAvatar(
+                            backgroundColor: Color(0xFF4A89F3),
+                            child: Icon(Icons.add, color: Colors.white),
+                          ),
                           SizedBox(height: 4),
-                          Text('Istoriya', style: TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
+                          Text(
+                            'Istoriya',
+                            style: TextStyle(fontSize: 12),
+                            overflow: TextOverflow.ellipsis,
+                          ),
                         ],
                       ),
                     ),
                   );
                 }
                 final s = AppState.stories[i - 1];
+                final author = (s['author'] ?? '').toString();
                 return GestureDetector(
                   onTap: () => showDialog(
                     context: context,
-                    builder: (_) => AlertDialog(
-                      title: Text(s['author'] ?? ''),
-                      content: Text(s['text'] ?? ''),
-                      actions: [TextButton(onPressed: () => Navigator.pop(context), child: const Text('Yopish'))],
+                    builder: (context) => AlertDialog(
+                      title: Text(author),
+                      content: Text((s['text'] ?? '').toString()),
+                      actions: [
+                        TextButton(
+                          onPressed: () => Navigator.pop(context),
+                          child: const Text('Yopish'),
+                        ),
+                      ],
                     ),
                   ),
                   child: SizedBox(
                     width: 68,
                     child: Column(
                       children: [
-                        CircleAvatar(child: Text((s['author'] ?? '?').substring(0, 1))),
+                        CircleAvatar(
+                          child: Text(author.isNotEmpty ? author.substring(0, 1) : '?'),
+                        ),
                         const SizedBox(height: 4),
-                        Text(s['author'] ?? '', style: const TextStyle(fontSize: 12), overflow: TextOverflow.ellipsis),
+                        Text(
+                          author,
+                          style: const TextStyle(fontSize: 12),
+                          overflow: TextOverflow.ellipsis,
+                        ),
                       ],
                     ),
                   ),
@@ -300,13 +364,19 @@ class _FeedTabState extends State<FeedTab> {
                 return Card(
                   margin: const EdgeInsets.only(bottom: 10),
                   child: ListTile(
-                    title: Text(p['author'].toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                    title: Text(
+                      p['author'].toString(),
+                      style: const TextStyle(fontWeight: FontWeight.bold),
+                    ),
                     subtitle: Text(p['text'].toString()),
                     trailing: Row(
                       mainAxisSize: MainAxisSize.min,
                       children: [
                         IconButton(
-                          icon: Icon(liked ? Icons.favorite : Icons.favorite_border, color: liked ? Colors.red : Colors.grey),
+                          icon: Icon(
+                            liked ? Icons.favorite : Icons.favorite_border,
+                            color: liked ? Colors.red : Colors.grey,
+                          ),
                           onPressed: () => setState(() {
                             p['liked'] = !liked;
                             p['likes'] = (p['likes'] as int) + (liked ? -1 : 1);
@@ -343,7 +413,7 @@ class SearchTab extends StatefulWidget {
 class _SearchTabState extends State<SearchTab> {
   String _q = '';
 
-  void _toggleFollow(Map<String, dynamic> u) {
+  void _toggleFollow(dynamic u) {
     setState(() {
       final f = u['followed'] == true;
       u['followed'] = !f;
@@ -355,8 +425,8 @@ class _SearchTabState extends State<SearchTab> {
 
   @override
   Widget build(BuildContext context) {
+    final s = _q.toLowerCase().trim();
     final list = AppState.users.where((u) {
-      final s = _q.toLowerCase().trim();
       return u['name'].toString().toLowerCase().contains(s) ||
           u['nick'].toString().toLowerCase().contains(s) ||
           u['phone'].toString().toLowerCase().contains(s);
@@ -370,7 +440,9 @@ class _SearchTabState extends State<SearchTab> {
             decoration: InputDecoration(
               hintText: 'Ism, @nikname yoki raqam...',
               prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onChanged: (v) => setState(() => _q = v),
           ),
@@ -389,7 +461,10 @@ class _SearchTabState extends State<SearchTab> {
                     Positioned(
                       right: 0,
                       bottom: 0,
-                      child: CircleAvatar(radius: 5, backgroundColor: online ? Colors.green : Colors.grey),
+                      child: CircleAvatar(
+                        radius: 5,
+                        backgroundColor: online ? Colors.green : Colors.grey,
+                      ),
                     ),
                   ],
                 ),
@@ -408,8 +483,12 @@ class _SearchTabState extends State<SearchTab> {
                         if (!AppState.chats.any((c) => c['id'] == u['id'])) {
                           AppState.chats.insert(0, u);
                         }
-                        Navigator.push(context, MaterialPageRoute(builder: (_) => DirectChatPage(user: u)))
-                            .then((_) => setState(() {}));
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => DirectChatPage(user: u),
+                          ),
+                        ).then((_) => setState(() {}));
                       },
                     ),
                   ],
@@ -438,10 +517,11 @@ class _ChatTabState extends State<ChatTab> {
     final s = _q.toLowerCase().trim();
     final list = s.isEmpty
         ? AppState.chats
-        : AppState.users.where((u) =>
-            u['name'].toString().toLowerCase().contains(s) ||
-            u['nick'].toString().toLowerCase().contains(s) ||
-            u['phone'].toString().toLowerCase().contains(s)).toList();
+        : AppState.users.where((u) {
+            return u['name'].toString().toLowerCase().contains(s) ||
+                u['nick'].toString().toLowerCase().contains(s) ||
+                u['phone'].toString().toLowerCase().contains(s);
+          }).toList();
 
     return Column(
       children: [
@@ -451,7 +531,9 @@ class _ChatTabState extends State<ChatTab> {
             decoration: InputDecoration(
               hintText: '@nikname yoki +998 raqam orqali qidiring',
               prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
             onChanged: (v) => setState(() => _q = v),
           ),
@@ -472,21 +554,37 @@ class _ChatTabState extends State<ChatTab> {
                       Positioned(
                         right: 0,
                         bottom: 0,
-                        child: CircleAvatar(radius: 5, backgroundColor: online ? Colors.green : Colors.grey),
+                        child: CircleAvatar(
+                          radius: 5,
+                          backgroundColor: online ? Colors.green : Colors.grey,
+                        ),
                       ),
                     ],
                   ),
-                  title: Text(u['name'].toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
-                  subtitle: Text("${online ? 'Onlayn' : 'Oflayn'} • ${u['lastMsg'] ?? ''}"),
+                  title: Text(
+                    u['name'].toString(),
+                    style: const TextStyle(fontWeight: FontWeight.bold),
+                  ),
+                  subtitle: Text(
+                    "${online ? 'Onlayn' : 'Oflayn'} • ${u['lastMsg'] ?? ''}",
+                  ),
                   onTap: () {
-                    if (!inChats) setState(() => AppState.chats.insert(0, u));
-                    Navigator.push(context, MaterialPageRoute(builder: (_) => DirectChatPage(user: u)))
-                        .then((_) => setState(() {}));
+                    if (!inChats) {
+                      setState(() => AppState.chats.insert(0, u));
+                    }
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => DirectChatPage(user: u),
+                      ),
+                    ).then((_) => setState(() {}));
                   },
                   trailing: inChats
                       ? IconButton(
                           icon: const Icon(Icons.delete_outline, color: Colors.red),
-                          onPressed: () => setState(() => AppState.chats.removeWhere((c) => c['id'] == u['id'])),
+                          onPressed: () => setState(() {
+                            AppState.chats.removeWhere((c) => c['id'] == u['id']);
+                          }),
                         )
                       : const Icon(Icons.person_add, color: Color(0xFF4A89F3)),
                 ),
@@ -500,7 +598,7 @@ class _ChatTabState extends State<ChatTab> {
 }
 
 class DirectChatPage extends StatefulWidget {
-  final Map<String, dynamic> user;
+  final dynamic user;
   const DirectChatPage({super.key, required this.user});
 
   @override
@@ -514,7 +612,7 @@ class _DirectChatPageState extends State<DirectChatPage> {
     final t = _ctrl.text.trim();
     if (t.isNotEmpty) {
       setState(() {
-        final msgs = List<String>.from(widget.user['msgs'] ?? []);
+        final msgs = List.from(widget.user['msgs'] ?? []);
         msgs.add(t);
         widget.user['msgs'] = msgs;
         widget.user['lastMsg'] = t;
@@ -525,7 +623,7 @@ class _DirectChatPageState extends State<DirectChatPage> {
 
   @override
   Widget build(BuildContext context) {
-    final msgs = List<String>.from(widget.user['msgs'] ?? []);
+    final msgs = List.from(widget.user['msgs'] ?? []);
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.user['name'].toString()),
@@ -538,13 +636,22 @@ class _DirectChatPageState extends State<DirectChatPage> {
             child: ListView.builder(
               padding: const EdgeInsets.all(12),
               itemCount: msgs.length,
-              itemBuilder: (_, i) => Align(
+              itemBuilder: (context, i) => Align(
                 alignment: Alignment.centerRight,
                 child: Container(
-                  margin: const EdgeInsets.symmetric(vertical: 4),
-                  padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                  decoration: BoxDecoration(color: const Color(0xFF4A89F3), borderRadius: BorderRadius.circular(14)),
-                  child: Text(msgs[i], style: const TextStyle(color: Colors.white)),
+                                    margin: const EdgeInsets.symmetric(vertical: 4),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF4A89F3),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    msgs[i].toString(),
+                    style: const TextStyle(color: Colors.white),
+                  ),
                 ),
               ),
             ),
@@ -558,12 +665,17 @@ class _DirectChatPageState extends State<DirectChatPage> {
                     controller: _ctrl,
                     decoration: InputDecoration(
                       hintText: 'Xabar yozing...',
-                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(24)),
+                      border: OutlineInputBorder(
+                        borderRadius: BorderRadius.circular(24),
+                      ),
                     ),
-                    onSubmitted: (_) => _send(),
+                    onSubmitted: (v) => _send(),
                   ),
                 ),
-                IconButton(icon: const Icon(Icons.send, color: Color(0xFF4A89F3)), onPressed: _send),
+                IconButton(
+                  icon: const Icon(Icons.send, color: Color(0xFF4A89F3)),
+                  onPressed: _send,
+                ),
               ],
             ),
           ),
@@ -588,10 +700,109 @@ class _ProfileTabState extends State<ProfileTab> {
     final phoneCtrl = TextEditingController(text: AppState.phone);
     showDialog(
       context: context,
-      builder: (_) => AlertDialog(
+      builder: (context) => AlertDialog(
         title: const Text('Profilni tahrirlash'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            TextField(controller: nameCtrl, decoration: const InputDecoration(labelText: 'Ism')),
-            TextField(controller: nickCtrl, decoration: const 
+            TextField(
+              controller: nameCtrl,
+              decoration: const InputDecoration(labelText: 'Ism'),
+            ),
+            TextField(
+              controller: nickCtrl,
+              decoration: const InputDecoration(labelText: 'Nikname'),
+            ),
+            TextField(
+              controller: phoneCtrl,
+              decoration: const InputDecoration(labelText: 'Telefon'),
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Bekor'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (nameCtrl.text.trim().isNotEmpty) {
+                setState(() {
+                  AppState.name = nameCtrl.text.trim();
+                  if (nickCtrl.text.trim().isNotEmpty) {
+                    AppState.nick = nickCtrl.text.trim();
+                  }
+                  AppState.phone = phoneCtrl.text.trim();
+                });
+                widget.onChanged();
+                Navigator.pop(context);
+              }
+            },
+            child: const Text('Saqlash'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        const CircleAvatar(
+          radius: 46,
+          backgroundColor: Color(0xFF4A89F3),
+          child: Icon(Icons.person, size: 50, color: Colors.white),
+        ),
+        const SizedBox(height: 12),
+        Center(
+          child: Text(
+            AppState.name,
+            style: const TextStyle(fontSize: 22, fontWeight: FontWeight.bold),
+          ),
+        ),
+        Center(
+          child: Text(
+            AppState.nick,
+            style: const TextStyle(color: Color(0xFF4A89F3)),
+          ),
+        ),
+        Center(
+          child: Text(
+            AppState.phone,
+            style: const TextStyle(color: Colors.grey),
+          ),
+        ),
+        const SizedBox(height: 18),
+        Row(
+          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+          children: [
+            Text(
+              'Obunachilar: ${AppState.followers}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+            Text(
+              'Obunalar: ${AppState.following}',
+              style: const TextStyle(fontWeight: FontWeight.bold),
+            ),
+          ],
+        ),
+        const SizedBox(height: 20),
+        ListTile(
+          leading: const Icon(Icons.edit),
+          title: const Text('Profilni tahrirlash'),
+          onTap: _editProfile,
+        ),
+        ListTile(
+          leading: const Icon(Icons.logout, color: Colors.red),
+          title: const Text('Qulflash'),
+          onTap: () => Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const LockScreen()),
+          ),
+        ),
+      ],
+    );
+  }
+}
