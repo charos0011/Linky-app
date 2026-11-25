@@ -243,7 +243,7 @@ class LinkyHomePage extends StatefulWidget {
 class _LinkyHomePageState extends State<LinkyHomePage> {
   int _currentIndex = 0;
 
-  final List> _posts = [
+  final _posts = [
     {
       'author': 'Linky Official',
       'title': 'Linky ilovasiga xush kelibsiz!',
@@ -340,7 +340,7 @@ class _LinkyHomePageState extends State<LinkyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    final List<Widget> tabs = [
+    final tabs = [
       FeedTab(
         posts: _posts,
         onToggleLike: (index) {
@@ -415,8 +415,8 @@ class _LinkyHomePageState extends State<LinkyHomePage> {
 }
 
 class FeedTab extends StatelessWidget {
-  final List> posts;
-  final void Function(int index) onToggleLike;
+  final posts;
+  final Function(int index) onToggleLike;
 
   const FeedTab({
     super.key,
@@ -426,7 +426,7 @@ class FeedTab extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final List<String> stories = ['Siz', 'Reels', 'Trend', 'Musiqa', 'Yangilik'];
+    final stories = ['Siz', 'Reels', 'Trend', 'Musiqa', 'Yangilik'];
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -555,7 +555,7 @@ class FeedTab extends StatelessWidget {
 }
 
 class SearchTab extends StatefulWidget {
-  final List> posts;
+  final posts;
 
   const SearchTab({super.key, required this.posts});
 
@@ -568,7 +568,7 @@ class _SearchTabState extends State<SearchTab> {
 
   @override
   Widget build(BuildContext context) {
-    final filtered = widget.posts.where((p) {
+    final filtered = (widget.posts as List).where((p) {
       final title = (p['title'] as String).toLowerCase();
       final desc = (p['desc'] as String).toLowerCase();
       final q = _query.toLowerCase();
@@ -626,7 +626,7 @@ class MessagesTab extends StatefulWidget {
 
 class _MessagesTabState extends State<MessagesTab> {
   final TextEditingController _msgController = TextEditingController();
-  final List<String> _messages = [
+  final _messages = [
     'Salom! Linky chatiga xush kelibsiz.',
   ];
 
@@ -690,8 +690,8 @@ class _MessagesTabState extends State<MessagesTab> {
                   controller: _msgController,
                   decoration: InputDecoration(
                     hintText: 'Xabar yozing...',
-                                       border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(24),
+                    border: OutlineInputBorder(
+                                            borderRadius: BorderRadius.circular(24),
                     ),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
