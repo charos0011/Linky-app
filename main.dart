@@ -16,14 +16,23 @@ class LinkyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4A89F3)),
         useMaterial3: true,
       ),
-      home: const LockScreen(child: LinkyHomePage()),
+      home: const LockScreen(child: LinkyMainPage()),
     );
   }
 }
 
+// ==========================================
+// 1. 2 MARTALIK PIN O'RNATISH VA QULF EKRANI
+// ==========================================
 class LockScreen extends StatefulWidget {
   final Widget child;
-  const LockScreen({super.key, required this.child});
+  final String? initialSavedPin;
+
+  const LockScreen({
+    super.key,
+    required this.child,
+    this.initialSavedPin,
+  });
 
   @override
   State<LockScreen> createState() => _LockScreenState();
@@ -32,11 +41,17 @@ class LockScreen extends StatefulWidget {
 class _LockScreenState extends State<LockScreen> {
   final TextEditingController _pinController = TextEditingController();
 
-  // 'setup' -> 'confirm' -> 'unlock'
-  String _mode = 'setup';
+  late String _mode; // 'setup' -> 'confirm' -> 'unlock'
   String? _savedPin;
   String? _firstPin;
   String? _errorText;
+
+  @override
+  void initState() {
+    super.initState();
+    _savedPin = widget.initialSavedPin;
+    _mode = (_savedPin != null && _savedPin!.isNotEmpty) ? 'unlock' : 'setup';
+  }
 
   void _handleSubmit() {
     final enteredPin = _pinController.text.trim();
@@ -60,15 +75,18 @@ class _LockScreenState extends State<LockScreen> {
 
     if (_mode == 'confirm') {
       if (enteredPin == _firstPin) {
+        final confirmedPin = enteredPin;
         setState(() {
-          _savedPin = enteredPin;
+          _savedPin = confirmedPin;
           _firstPin = null;
           _mode = 'unlock';
           _errorText = null;
           _pinController.clear();
         });
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => widget.child),
+          MaterialPageRoute(
+            builder: (_) => LinkyMainPage(activePin: confirmedPin),
+          ),
         );
       } else {
         setState(() {
@@ -86,7 +104,9 @@ class _LockScreenState extends State<LockScreen> {
           _pinController.clear();
         });
         Navigator.of(context).pushReplacement(
-          MaterialPageRoute(builder: (_) => widget.child),
+          MaterialPageRoute(
+            builder: (_) => LinkyMainPage(activePin: _savedPin),
+          ),
         );
       } else {
         setState(() {
@@ -102,9 +122,7 @@ class _LockScreenState extends State<LockScreen> {
       _firstPin = null;
       _errorText = null;
       _pinController.clear();
-      if (_savedPin == null) {
-        _mode = 'setup';
-      }
+      _mode = 'setup';
     });
   }
 
@@ -161,7 +179,7 @@ class _LockScreenState extends State<LockScreen> {
                 decoration: InputDecoration(
                   hintText: 'PIN kod (kamida 4 raqam)',
                   filled: true,
-                  fillColor: Colors.white.withOpacity(0.85),
+                  fillColor: Colors.white.withOpacity(0.9),
                   border: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(14),
                     borderSide: BorderSide.none,
@@ -194,7 +212,10 @@ class _LockScreenState extends State<LockScreen> {
                   onPressed: _handleSubmit,
                   child: Text(
                     _buttonText,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
                   ),
                 ),
               ),
@@ -216,43 +237,163 @@ class _LockScreenState extends State<LockScreen> {
   }
 }
 
-class LinkyHomePage extends StatefulWidget {
-  const LinkyHomePage({super.key});
+// ==========================================
+// 2. ASOSIY ILOVA VA 4 TA BO'LIM
+// ==========================================
+class LinkyMainPage extends StatefulWidget {
+  final String? activePin;
+  const LinkyMainPage({super.key, this.activePin});
 
   @override
-  State<LinkyHomePage> createState() => _LinkyHomePageState();
+  State<LinkyMainPage> createState() => _LinkyMainPageState();
 }
 
-class _LinkyHomePageState extends State<LinkyHomePage> {
+class _LinkyMainPageState extends State<LinkyMainPage> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = const [
-    _FeedPage(),
-    _SearchPage(),
-    _MessagesPage(),
-    _ProfilePage(),
+  final List> _posts = [
+    {
+      'author': 'Linky Official',
+      'title': 'Linky ilovasiga xush kelibsiz!',
+      'desc': 'Stories, Reels, qidiruv va shaxsiy xabarlar bir joyda.',
+      'likes': 24,
+      'liked': false,
+      'isVideo': true,
+    },
+    {
+      'author': 'Trend Reels',
+      'title': 'Kunning eng mashhur qisqa videolari',
+      'desc': 'Yangi videolar va foydali tavsiyalarni kuzatib boring.',
+      'likes': 18,
+      'liked': false,
+      'isVideo': true,
+    },
   ];
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: const Text('Linky'),
+  void _addNewPost(String title, String desc) {
+    setState(() {
+      _posts.insert(0, {
+        'author': 'Siz',
+        'title': title,
+        'desc': desc,
+        'likes': 1,
+        'liked': true,
+        'isVideo': false,
+      });
+    });
+  }
+
+  void _showAddPostDialog() {
+    final titleCtrl = TextEditingController();
+    final descCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Yangi post joylash'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(
+              controller: titleCtrl,
+              decoration: const InputDecoration(labelText: 'Sarlavha'),
+            ),
+            const SizedBox(height: 8),
+            TextField(
+              controller: descCtrl,
+              decoration: const InputDecoration(labelText: 'Matn'),
+              maxLines: 2,
+            ),
+          ],
+        ),
         actions: [
-          IconButton(
-            icon: const Icon(Icons.lock_outline),
-            tooltip: 'Qulflash',
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Bekor qilish'),
+          ),
+          ElevatedButton(
             onPressed: () {
-              Navigator.of(context).pushReplacement(
-                MaterialPageRoute(
-                  builder: (_) => const LockScreen(child: LinkyHomePage()),
-                ),
-              );
+              if (titleCtrl.text.trim().isNotEmpty) {
+                _addNewPost(
+                  titleCtrl.text.trim(),
+                  descCtrl.text.trim().isEmpty
+                      ? 'Yangi post'
+                      : descCtrl.text.trim(),
+                );
+                Navigator.pop(ctx);
+              }
             },
+            child: const Text('Joylash'),
           ),
         ],
       ),
-      body: _pages[_selectedIndex],
+    );
+  }
+
+  void _lockApp() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => LockScreen(
+          initialSavedPin: widget.activePin,
+          child: LinkyMainPage(activePin: widget.activePin),
+        ),
+      ),
+    );
+  }
+
+  void _resetPin() {
+    Navigator.of(context).pushReplacement(
+      MaterialPageRoute(
+        builder: (_) => const LockScreen(
+          initialSavedPin: null,
+          child: LinkyMainPage(),
+        ),
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    final pages = [
+      _FeedPage(
+        posts: _posts,
+        onToggleLike: (index) {
+          setState(() {
+            final liked = _posts[index]['liked'] as bool;
+            _posts[index]['liked'] = !liked;
+            _posts[index]['likes'] =
+                (_posts[index]['likes'] as int) + (liked ? -1 : 1);
+          });
+        },
+      ),
+      _SearchPage(posts: _posts),
+      const _MessagesPage(),
+      _ProfilePage(
+        postCount: _posts.where((p) => p['author'] == 'Siz').length,
+        onResetPin: _resetPin,
+      ),
+    ];
+
+    return Scaffold(
+      appBar: AppBar(
+        title: const Text(
+          'Linky',
+          style: TextStyle(fontWeight: FontWeight.bold),
+        ),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.add_box_outlined),
+            tooltip: 'Post qo\'shish',
+            onPressed: _showAddPostDialog,
+          ),
+          IconButton(
+            icon: const Icon(Icons.lock_outline),
+            tooltip: 'Ilovani qulflash',
+            onPressed: _lockApp,
+          ),
+        ],
+      ),
+      body: pages[_selectedIndex],
       bottomNavigationBar: NavigationBar(
         selectedIndex: _selectedIndex,
         onDestinationSelected: (index) {
@@ -287,19 +428,22 @@ class _LinkyHomePageState extends State<LinkyHomePage> {
   }
 }
 
-class _FeedPage extends StatefulWidget {
-  const _FeedPage();
+// ==========================================
+// 3. ASOSIY LENTA (STORIES + REELS + POSTLAR)
+// ==========================================
+class _FeedPage extends StatelessWidget {
+  final List> posts;
+  final void Function(int index) onToggleLike;
 
-  @override
-  State<_FeedPage> createState() => _FeedPageState();
-}
-
-class _FeedPageState extends State<_FeedPage> {
-  int _likes = 12;
-  bool _liked = false;
+  const _FeedPage({
+    required this.posts,
+    required this.onToggleLike,
+  });
 
   @override
   Widget build(BuildContext context) {
+    final stories = ['Siz', 'Reels', 'Trend', 'Musiqa', 'Yangilik'];
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
@@ -309,99 +453,129 @@ class _FeedPageState extends State<_FeedPage> {
         ),
         const SizedBox(height: 10),
         SizedBox(
-          height: 82,
-          child: ListView(
+          height: 84,
+          child: ListView.builder(
             scrollDirection: Axis.horizontal,
-            children: const [
-              _StoryItem(name: 'Siz'),
-              _StoryItem(name: 'Reels'),
-              _StoryItem(name: 'Trend'),
-              _StoryItem(name: 'Yangi'),
-              _StoryItem(name: 'Do\'stlar'),
-            ],
-          ),
-        ),
-        const SizedBox(height: 16),
-        Card(
-          child: Padding(
-            padding: const EdgeInsets.all(14),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const Row(
-                  children: [
-                    CircleAvatar(child: Icon(Icons.movie)),
-                    SizedBox(width: 10),
-                    Text(
-                      'Linky Reels & Post',
-                      style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+            itemCount: stories.length,
+            itemBuilder: (context, index) {
+              return GestureDetector(
+                onTap: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(
+                      content: Text('${stories[index]} story ochildi'),
+                      duration: const Duration(seconds: 1),
                     ),
-                  ],
-                ),
-                const SizedBox(height: 12),
-                Container(
-                  height: 160,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: const Color(0xFF4A89F3).withOpacity(0.15),
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: const Center(
-                    child: Icon(Icons.play_circle_fill, size: 56, color: Color(0xFF4A89F3)),
-                  ),
-                ),
-                const SizedBox(height: 10),
-                const Text('Yangi video va postlar shu yerda ko\'rinadi.'),
-                Row(
-                  children: [
-                    IconButton(
-                      icon: Icon(
-                        _liked ? Icons.favorite : Icons.favorite_border,
-                        color: _liked ? Colors.red : null,
+                  );
+                },
+                child: Padding(
+                  padding: const EdgeInsets.only(right: 14),
+                  child: Column(
+                    children: [
+                      CircleAvatar(
+                        radius: 26,
+                        backgroundColor: const Color(0xFF4A89F3),
+                        child: Text(
+                          stories[index][0],
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
                       ),
-                      onPressed: () {
-                        setState(() {
-                          _liked = !_liked;
-                          _likes += _liked ? 1 : -1;
-                        });
-                      },
-                    ),
-                    Text('$_likes'),
-                  ],
+                      const SizedBox(height: 4),
+                      Text(
+                        stories[index],
+                        style: const TextStyle(fontSize: 12),
+                      ),
+                    ],
+                  ),
                 ),
-              ],
-            ),
+              );
+            },
           ),
         ),
+        const SizedBox(height: 12),
+        ...List.generate(posts.length, (index) {
+          final post = posts[index];
+          final liked = post['liked'] as bool;
+          final isVideo = post['isVideo'] as bool;
+
+          return Card(
+            margin: const EdgeInsets.only(bottom: 14),
+            child: Padding(
+              padding: const EdgeInsets.all(14),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Row(
+                    children: [
+                      const CircleAvatar(child: Icon(Icons.person)),
+                      const SizedBox(width: 10),
+                      Text(
+                        post['author'] as String,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 15,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 10),
+                  if (isVideo)
+                    Container(
+                      height: 150,
+                      width: double.infinity,
+                      margin: const EdgeInsets.only(bottom: 10),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF4A89F3).withOpacity(0.15),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Center(
+                        child: Icon(
+                          Icons.play_circle_fill,
+                          size: 54,
+                          color: Color(0xFF4A89F3),
+                        ),
+                      ),
+                    ),
+                  Text(
+                    post['title'] as String,
+                    style: const TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                    ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(post['desc'] as String),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      IconButton(
+                        icon: Icon(
+                          liked ? Icons.favorite : Icons.favorite_border,
+                          color: liked ? Colors.red : null,
+                        ),
+                        onPressed: () => onToggleLike(index),
+                      ),
+                      Text('${post['likes']}'),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          );
+        }),
       ],
     );
   }
 }
 
-class _StoryItem extends StatelessWidget {
-  final String name;
-  const _StoryItem({required this.name});
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: const EdgeInsets.only(right: 12),
-      child: Column(
-        children: [
-          const CircleAvatar(
-            radius: 26,
-            child: Icon(Icons.person),
-          ),
-          const SizedBox(height: 4),
-          Text(name, style: const TextStyle(fontSize: 12)),
-        ],
-      ),
-    );
-  }
-}
-
+// ==========================================
+// 4. QIDIRUV BO'LIMI
+// ==========================================
 class _SearchPage extends StatefulWidget {
-  const _SearchPage();
+  final List> posts;
+  const _SearchPage({required this.posts});
 
   @override
   State<_SearchPage> createState() => _SearchPageState();
@@ -409,18 +583,15 @@ class _SearchPage extends StatefulWidget {
 
 class _SearchPageState extends State<_SearchPage> {
   String _query = '';
-  final List<String> _items = const [
-    'Linky Reels: Qisqa videolar',
-    'Trend musiqalar va kliplar',
-    'Yangi foydalanuvchi sahifalari',
-    'Foydali darslik va maslahatlar',
-  ];
 
   @override
   Widget build(BuildContext context) {
-    final filtered = _items
-        .where((item) => item.toLowerCase().contains(_query.toLowerCase()))
-        .toList();
+    final filtered = widget.posts.where((p) {
+      final title = (p['title'] as String).toLowerCase();
+      final desc = (p['desc'] as String).toLowerCase();
+      final q = _query.toLowerCase();
+      return title.contains(q) || desc.contains(q);
+    }).toList();
 
     return Padding(
       padding: const EdgeInsets.all(16),
@@ -428,29 +599,35 @@ class _SearchPageState extends State<_SearchPage> {
         children: [
           TextField(
             decoration: InputDecoration(
-              hintText: 'Video, reels yoki sahifa qidiring...',
+              hintText: 'Video, reels yoki post qidiring...',
               prefixIcon: const Icon(Icons.search),
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(12),
+              ),
             ),
-            onChanged: (value) {
+            onChanged: (val) {
               setState(() {
-                _query = value.trim();
+                _query = val.trim();
               });
             },
           ),
           const SizedBox(height: 14),
           Expanded(
-            child: ListView.builder(
-              itemCount: filtered.length,
-              itemBuilder: (context, index) {
-                return Card(
-                  child: ListTile(
-                    leading: const Icon(Icons.search),
-                    title: Text(filtered[index]),
+            child: filtered.isEmpty
+                ? const Center(child: Text('Hech narsa topilmadi'))
+                : ListView.builder(
+                    itemCount: filtered.length,
+                    itemBuilder: (context, index) {
+                      final item = filtered[index];
+                      return Card(
+                        child: ListTile(
+                          leading: const Icon(Icons.play_arrow),
+                          title: Text(item['title'] as String),
+                          subtitle: Text(item['desc'] as String),
+                        ),
+                      );
+                    },
                   ),
-                );
-              },
-            ),
           ),
         ],
       ),
@@ -458,67 +635,52 @@ class _SearchPageState extends State<_SearchPage> {
   }
 }
 
-class _MessagesPage extends StatelessWidget {
+// ==========================================
+// 5. XABARLAR BO'LIMI
+// ==========================================
+class _MessagesPage extends StatefulWidget {
   const _MessagesPage();
 
   @override
-  Widget build(BuildContext context) {
-    return ListView(
-      padding: const EdgeInsets.all(16),
-      children: const [
-        Card(
-          child: ListTile(
-            leading: CircleAvatar(child: Icon(Icons.chat)),
-            title: Text('Shaxsiy xabarlar'),
-            subtitle: Text('Xabar yozish va javob olish bo\'limi'),
-          ),
-        ),
-      ],
-    );
-  }
+  State<_MessagesPage> createState() => _MessagesPageState();
 }
 
-class _ProfilePage extends StatelessWidget {
-  const _ProfilePage();
+class _MessagesPageState extends State<_MessagesPage> {
+  final TextEditingController _msgCtrl = TextEditingController();
+  final List<String> _messages = [
+    'Salom! Linky chatiga xush kelibsiz.',
+  ];
+
+  void _sendMessage() {
+    final text = _msgCtrl.text.trim();
+    if (text.isEmpty) return;
+    setState(() {
+      _messages.add(text);
+      _msgCtrl.clear();
+    });
+  }
+
+  @override
+  void dispose() {
+    _msgCtrl.dispose();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
-    return const Padding(
-      padding: EdgeInsets.all(20),
-      child: Column(
-        children: [
-          CircleAvatar(radius: 42, child: Icon(Icons.person, size: 42)),
-          SizedBox(height: 12),
-          Text(
-            'Linky Profili',
-            style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
-          ),
-          SizedBox(height: 16),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              Column(
-                children: [
-                  Text('0', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text('Postlar'),
-                ],
-              ),
-              Column(
-                children: [
-                  Text('0', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text('Obunachilar'),
-                ],
-              ),
-              Column(
-                children: [
-                  Text('0', style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-                  Text('Obunalar'),
-                ],
-              ),
-            ],
-          ),
-        ],
-      ),
-    );
-  }
-}
+    return Column(
+      children: [
+        Expanded(
+          child: ListView.builder(
+            padding: const EdgeInsets.all(16),
+            itemCount: _messages.length,
+            itemBuilder: (context, index) {
+              return Align(
+                alignment: index == 0
+                    ? Alignment.centerLeft
+                    : Alignment.centerRight,
+                child: Container(
+                  margin: const EdgeInsets.only(bottom: 8),
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 14,
+                    ver
