@@ -683,4 +683,199 @@ class _MessagesPageState extends State<_MessagesPage> {
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
-                    ver
+                                      vertical: 10,
+                ),
+                decoration: BoxDecoration(
+                  color: index == 0
+                      ? Colors.grey.shade200
+                      : const Color(0xFF4A89F3),
+                  borderRadius: BorderRadius.circular(14),
+                ),
+                child: Text(
+                  _messages[index],
+                  style: TextStyle(
+                    color: index == 0 ? Colors.black87 : Colors.white,
+                  ),
+                ),
+              ),
+            );
+          },
+        ),
+      ),
+      Padding(
+        padding: const EdgeInsets.all(12),
+        child: Row(
+          children: [
+            Expanded(
+              child: TextField(
+                controller: _msgCtrl,
+                decoration: InputDecoration(
+                  hintText: 'Xabar yozing...',
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(24),
+                  ),
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                ),
+                onSubmitted: (_) => _sendMessage(),
+              ),
+            ),
+            const SizedBox(width: 8),
+            IconButton.filled(
+              onPressed: _sendMessage,
+              icon: const Icon(Icons.send),
+            ),
+          ],
+        ),
+      ),
+    ],
+  );
+}
+}
+
+// ==========================================
+// 6. PROFIL BO'LIMI
+// ==========================================
+class _ProfilePage extends StatefulWidget {
+  final int postCount;
+  final VoidCallback onResetPin;
+
+  const _ProfilePage({
+    required this.postCount,
+    required this.onResetPin,
+  });
+
+  @override
+  State<_ProfilePage> createState() => _ProfilePageState();
+}
+
+class _ProfilePageState extends State<_ProfilePage> {
+  String _username = 'Linky foydalanuvchisi';
+  int _followers = 128;
+  bool _isFollowing = false;
+
+  void _editName() {
+    final ctrl = TextEditingController(text: _username);
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Ismni o\'zgartirish'),
+        content: TextField(controller: ctrl),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx),
+            child: const Text('Bekor qilish'),
+          ),
+          ElevatedButton(
+            onPressed: () {
+              if (ctrl.text.trim().isNotEmpty) {
+                setState(() {
+                  _username = ctrl.text.trim();
+                });
+                Navigator.pop(ctx);
+              }
+            },
+            child: const Text('Saqlash'),
+          ),
+        ],
+      ),
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(20),
+      child: Column(
+        children: [
+          const CircleAvatar(
+            radius: 42,
+            backgroundColor: Color(0xFF4A89F3),
+            child: Icon(Icons.person, size: 42, color: Colors.white),
+          ),
+          const SizedBox(height: 12),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                _username,
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              IconButton(
+                icon: const Icon(Icons.edit, size: 18),
+                onPressed: _editName,
+              ),
+            ],
+          ),
+          const SizedBox(height: 16),
+          Row(
+            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+            children: [
+              Column(
+                children: [
+                  Text(
+                    '${widget.postCount}',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Text('Postlar'),
+                ],
+              ),
+              Column(
+                children: [
+                  Text(
+                    '$_followers',
+                    style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  const Text('Obunachilar'),
+                ],
+              ),
+              const Column(
+                children: [
+                  Text(
+                    '15',
+                    style: TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  Text('Obunalar'),
+                ],
+              ),
+            ],
+          ),
+          const SizedBox(height: 20),
+          SizedBox(
+            width: double.infinity,
+            child: ElevatedButton(
+              onPressed: () {
+                setState(() {
+                  _isFollowing = !_isFollowing;
+                  _followers += _isFollowing ? 1 : -1;
+                });
+              },
+              child: Text(_isFollowing ? 'Obuna bo\'lingan' : 'Obuna bo\'lish'),
+            ),
+          ),
+          const SizedBox(height: 10),
+          SizedBox(
+            width: double.infinity,
+            child: OutlinedButton.icon(
+              onPressed: widget.onResetPin,
+              icon: const Icon(Icons.password),
+              label: const Text('PIN kodni yangidan o\'rnatish'),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+}
+
