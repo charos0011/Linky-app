@@ -16,23 +16,15 @@ class LinkyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: const Color(0xFF4A89F3)),
         useMaterial3: true,
       ),
-      home: const LockScreen(child: LinkyMainPage()),
+      home: const LockScreen(),
     );
   }
 }
 
-// ==========================================
-// 1. 2 MARTALIK PIN O'RNATISH VA QULF EKRANI
-// ==========================================
 class LockScreen extends StatefulWidget {
-  final Widget child;
-  final String? initialSavedPin;
+  final String? initialPin;
 
-  const LockScreen({
-    super.key,
-    required this.child,
-    this.initialSavedPin,
-  });
+  const LockScreen({super.key, this.initialPin});
 
   @override
   State<LockScreen> createState() => _LockScreenState();
@@ -41,7 +33,7 @@ class LockScreen extends StatefulWidget {
 class _LockScreenState extends State<LockScreen> {
   final TextEditingController _pinController = TextEditingController();
 
-  late String _mode; // 'setup' -> 'confirm' -> 'unlock'
+  String _mode = 'setup';
   String? _savedPin;
   String? _firstPin;
   String? _errorText;
@@ -49,14 +41,16 @@ class _LockScreenState extends State<LockScreen> {
   @override
   void initState() {
     super.initState();
-    _savedPin = widget.initialSavedPin;
-    _mode = (_savedPin != null && _savedPin!.isNotEmpty) ? 'unlock' : 'setup';
+    _savedPin = widget.initialPin;
+    if (_savedPin != null && _savedPin!.isNotEmpty) {
+      _mode = 'unlock';
+    }
   }
 
-  void _handleSubmit() {
-    final enteredPin = _pinController.text.trim();
+  void _submit() {
+    final pin = _pinController.text.trim();
 
-    if (enteredPin.length < 4) {
+    if (pin.length < 4) {
       setState(() {
         _errorText = 'Kamida 4 ta raqam kiriting';
       });
@@ -65,7 +59,7 @@ class _LockScreenState extends State<LockScreen> {
 
     if (_mode == 'setup') {
       setState(() {
-        _firstPin = enteredPin;
+        _firstPin = pin;
         _mode = 'confirm';
         _errorText = null;
         _pinController.clear();
@@ -74,10 +68,10 @@ class _LockScreenState extends State<LockScreen> {
     }
 
     if (_mode == 'confirm') {
-      if (enteredPin == _firstPin) {
-        final confirmedPin = enteredPin;
+      if (pin == _firstPin) {
+        final confirmed = pin;
         setState(() {
-          _savedPin = confirmedPin;
+          _savedPin = confirmed;
           _firstPin = null;
           _mode = 'unlock';
           _errorText = null;
@@ -85,12 +79,12 @@ class _LockScreenState extends State<LockScreen> {
         });
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (_) => LinkyMainPage(activePin: confirmedPin),
+            builder: (_) => LinkyHomePage(activePin: confirmed),
           ),
         );
       } else {
         setState(() {
-          _errorText = 'Parollar mos kelmadi, qaytadan kiriting';
+          _errorText = 'PIN kodlar mos kelmadi, qaytadan kiriting';
           _pinController.clear();
         });
       }
@@ -98,26 +92,26 @@ class _LockScreenState extends State<LockScreen> {
     }
 
     if (_mode == 'unlock') {
-      if (enteredPin == _savedPin) {
+      if (pin == _savedPin) {
         setState(() {
           _errorText = null;
           _pinController.clear();
         });
         Navigator.of(context).pushReplacement(
           MaterialPageRoute(
-            builder: (_) => LinkyMainPage(activePin: _savedPin),
+            builder: (_) => LinkyHomePage(activePin: _savedPin),
           ),
         );
       } else {
         setState(() {
-          _errorText = 'Parol noto\'g\'ri';
+          _errorText = 'PIN kod noto\'g\'ri';
           _pinController.clear();
         });
       }
     }
   }
 
-  void _resetSetup() {
+  void _restartSetup() {
     setState(() {
       _firstPin = null;
       _errorText = null;
@@ -126,13 +120,13 @@ class _LockScreenState extends State<LockScreen> {
     });
   }
 
-  String get _titleText {
+  String _getTitle() {
     if (_mode == 'setup') return 'Yangi PIN kod o\'rnating';
     if (_mode == 'confirm') return 'PIN kodni qayta kiriting';
     return 'PIN kodni kiriting';
   }
 
-  String get _buttonText {
+  String _getButtonText() {
     if (_mode == 'setup') return 'Davom etish';
     if (_mode == 'confirm') return 'Tasdiqlash';
     return 'Kirish';
@@ -166,7 +160,7 @@ class _LockScreenState extends State<LockScreen> {
               ),
               const SizedBox(height: 10),
               Text(
-                _titleText,
+                _getTitle(),
                 style: const TextStyle(fontSize: 16, color: Colors.white70),
               ),
               const SizedBox(height: 24),
@@ -185,7 +179,7 @@ class _LockScreenState extends State<LockScreen> {
                     borderSide: BorderSide.none,
                   ),
                 ),
-                onSubmitted: (_) => _handleSubmit(),
+                onSubmitted: (_) => _submit(),
               ),
               if (_errorText != null) ...[
                 const SizedBox(height: 12),
@@ -209,9 +203,9 @@ class _LockScreenState extends State<LockScreen> {
                       borderRadius: BorderRadius.circular(25),
                     ),
                   ),
-                  onPressed: _handleSubmit,
+                  onPressed: _submit,
                   child: Text(
-                    _buttonText,
+                    _getButtonText(),
                     style: const TextStyle(
                       fontSize: 16,
                       fontWeight: FontWeight.w600,
@@ -222,7 +216,7 @@ class _LockScreenState extends State<LockScreen> {
               if (_mode == 'confirm') ...[
                 const SizedBox(height: 10),
                 TextButton(
-                  onPressed: _resetSetup,
+                  onPressed: _restartSetup,
                   child: const Text(
                     'Qaytadan o\'rnatish',
                     style: TextStyle(color: Colors.white),
@@ -237,40 +231,38 @@ class _LockScreenState extends State<LockScreen> {
   }
 }
 
-// ==========================================
-// 2. ASOSIY ILOVA VA 4 TA BO'LIM
-// ==========================================
-class LinkyMainPage extends StatefulWidget {
+class LinkyHomePage extends StatefulWidget {
   final String? activePin;
-  const LinkyMainPage({super.key, this.activePin});
+
+  const LinkyHomePage({super.key, this.activePin});
 
   @override
-  State<LinkyMainPage> createState() => _LinkyMainPageState();
+  State<LinkyHomePage> createState() => _LinkyHomePageState();
 }
 
-class _LinkyMainPageState extends State<LinkyMainPage> {
-  int _selectedIndex = 0;
+class _LinkyHomePageState extends State<LinkyHomePage> {
+  int _currentIndex = 0;
 
   final List> _posts = [
     {
       'author': 'Linky Official',
       'title': 'Linky ilovasiga xush kelibsiz!',
-      'desc': 'Stories, Reels, qidiruv va shaxsiy xabarlar bir joyda.',
+      'desc': 'Stories, Reels, qidiruv va xabarlar bir joyda.',
       'likes': 24,
       'liked': false,
       'isVideo': true,
     },
     {
       'author': 'Trend Reels',
-      'title': 'Kunning eng mashhur qisqa videolari',
-      'desc': 'Yangi videolar va foydali tavsiyalarni kuzatib boring.',
+      'title': 'Mashhur qisqa videolar',
+      'desc': 'Yangi videolar va tavsiyalarni ko\'ring.',
       'likes': 18,
       'liked': false,
       'isVideo': true,
     },
   ];
 
-  void _addNewPost(String title, String desc) {
+  void _addPost(String title, String desc) {
     setState(() {
       _posts.insert(0, {
         'author': 'Siz',
@@ -283,24 +275,24 @@ class _LinkyMainPageState extends State<LinkyMainPage> {
     });
   }
 
-  void _showAddPostDialog() {
-    final titleCtrl = TextEditingController();
-    final descCtrl = TextEditingController();
+  void _openAddPostDialog() {
+    final titleController = TextEditingController();
+    final descController = TextEditingController();
 
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: const Text('Yangi post joylash'),
+        title: const Text('Yangi post'),
         content: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
             TextField(
-              controller: titleCtrl,
+              controller: titleController,
               decoration: const InputDecoration(labelText: 'Sarlavha'),
             ),
             const SizedBox(height: 8),
             TextField(
-              controller: descCtrl,
+              controller: descController,
               decoration: const InputDecoration(labelText: 'Matn'),
               maxLines: 2,
             ),
@@ -313,12 +305,12 @@ class _LinkyMainPageState extends State<LinkyMainPage> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (titleCtrl.text.trim().isNotEmpty) {
-                _addNewPost(
-                  titleCtrl.text.trim(),
-                  descCtrl.text.trim().isEmpty
+              if (titleController.text.trim().isNotEmpty) {
+                _addPost(
+                  titleController.text.trim(),
+                  descController.text.trim().isEmpty
                       ? 'Yangi post'
-                      : descCtrl.text.trim(),
+                      : descController.text.trim(),
                 );
                 Navigator.pop(ctx);
               }
@@ -330,13 +322,10 @@ class _LinkyMainPageState extends State<LinkyMainPage> {
     );
   }
 
-  void _lockApp() {
+  void _lockNow() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => LockScreen(
-          initialSavedPin: widget.activePin,
-          child: LinkyMainPage(activePin: widget.activePin),
-        ),
+        builder: (_) => LockScreen(initialPin: widget.activePin),
       ),
     );
   }
@@ -344,18 +333,15 @@ class _LinkyMainPageState extends State<LinkyMainPage> {
   void _resetPin() {
     Navigator.of(context).pushReplacement(
       MaterialPageRoute(
-        builder: (_) => const LockScreen(
-          initialSavedPin: null,
-          child: LinkyMainPage(),
-        ),
+        builder: (_) => const LockScreen(initialPin: null),
       ),
     );
   }
 
   @override
   Widget build(BuildContext context) {
-    final pages = [
-      _FeedPage(
+    final List<Widget> tabs = [
+      FeedTab(
         posts: _posts,
         onToggleLike: (index) {
           setState(() {
@@ -366,10 +352,10 @@ class _LinkyMainPageState extends State<LinkyMainPage> {
           });
         },
       ),
-      _SearchPage(posts: _posts),
-      const _MessagesPage(),
-      _ProfilePage(
-        postCount: _posts.where((p) => p['author'] == 'Siz').length,
+      SearchTab(posts: _posts),
+      const MessagesTab(),
+      ProfileTab(
+        myPostsCount: _posts.where((p) => p['author'] == 'Siz').length,
         onResetPin: _resetPin,
       ),
     ];
@@ -384,21 +370,21 @@ class _LinkyMainPageState extends State<LinkyMainPage> {
           IconButton(
             icon: const Icon(Icons.add_box_outlined),
             tooltip: 'Post qo\'shish',
-            onPressed: _showAddPostDialog,
+            onPressed: _openAddPostDialog,
           ),
           IconButton(
             icon: const Icon(Icons.lock_outline),
-            tooltip: 'Ilovani qulflash',
-            onPressed: _lockApp,
+            tooltip: 'Qulflash',
+            onPressed: _lockNow,
           ),
         ],
       ),
-      body: pages[_selectedIndex],
+      body: tabs[_currentIndex],
       bottomNavigationBar: NavigationBar(
-        selectedIndex: _selectedIndex,
+        selectedIndex: _currentIndex,
         onDestinationSelected: (index) {
           setState(() {
-            _selectedIndex = index;
+            _currentIndex = index;
           });
         },
         destinations: const [
@@ -428,21 +414,19 @@ class _LinkyMainPageState extends State<LinkyMainPage> {
   }
 }
 
-// ==========================================
-// 3. ASOSIY LENTA (STORIES + REELS + POSTLAR)
-// ==========================================
-class _FeedPage extends StatelessWidget {
+class FeedTab extends StatelessWidget {
   final List> posts;
   final void Function(int index) onToggleLike;
 
-  _FeedPage({
+  const FeedTab({
+    super.key,
     required this.posts,
     required this.onToggleLike,
   });
 
   @override
   Widget build(BuildContext context) {
-    final stories = ['Siz', 'Reels', 'Trend', 'Musiqa', 'Yangilik'];
+    final List<String> stories = ['Siz', 'Reels', 'Trend', 'Musiqa', 'Yangilik'];
 
     return ListView(
       padding: const EdgeInsets.all(16),
@@ -570,19 +554,16 @@ class _FeedPage extends StatelessWidget {
   }
 }
 
-// ==========================================
-// 4. QIDIRUV BO'LIMI
-// ==========================================
-class _SearchPage extends StatefulWidget {
+class SearchTab extends StatefulWidget {
   final List> posts;
 
-  _SearchPage({required this.posts});
+  const SearchTab({super.key, required this.posts});
 
   @override
-  State<_SearchPage> createState() => _SearchPageState();
+  State<SearchTab> createState() => _SearchTabState();
 }
 
-class _SearchPageState extends State<_SearchPage> {
+class _SearchTabState extends State<SearchTab> {
   String _query = '';
 
   @override
@@ -636,34 +617,31 @@ class _SearchPageState extends State<_SearchPage> {
   }
 }
 
-// ==========================================
-// 5. XABARLAR BO'LIMI
-// ==========================================
-class _MessagesPage extends StatefulWidget {
-  const _MessagesPage();
+class MessagesTab extends StatefulWidget {
+  const MessagesTab({super.key});
 
   @override
-  State<_MessagesPage> createState() => _MessagesPageState();
+  State<MessagesTab> createState() => _MessagesTabState();
 }
 
-class _MessagesPageState extends State<_MessagesPage> {
-  final TextEditingController _msgCtrl = TextEditingController();
+class _MessagesTabState extends State<MessagesTab> {
+  final TextEditingController _msgController = TextEditingController();
   final List<String> _messages = [
     'Salom! Linky chatiga xush kelibsiz.',
   ];
 
-  void _sendMessage() {
-    final text = _msgCtrl.text.trim();
+  void _send() {
+    final text = _msgController.text.trim();
     if (text.isEmpty) return;
     setState(() {
       _messages.add(text);
-      _msgCtrl.clear();
+      _msgController.clear();
     });
   }
 
   @override
   void dispose() {
-    _msgCtrl.dispose();
+    _msgController.dispose();
     super.dispose();
   }
 
@@ -685,7 +663,7 @@ class _MessagesPageState extends State<_MessagesPage> {
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
                     vertical: 10,
-                                      ),
+                  ),
                   decoration: BoxDecoration(
                     color: index == 0
                         ? Colors.grey.shade200
@@ -709,20 +687,20 @@ class _MessagesPageState extends State<_MessagesPage> {
             children: [
               Expanded(
                 child: TextField(
-                  controller: _msgCtrl,
+                  controller: _msgController,
                   decoration: InputDecoration(
                     hintText: 'Xabar yozing...',
-                    border: OutlineInputBorder(
+                                       border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(24),
                     ),
                     contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
-                  onSubmitted: (_) => _sendMessage(),
+                  onSubmitted: (_) => _send(),
                 ),
               ),
               const SizedBox(width: 8),
               IconButton.filled(
-                onPressed: _sendMessage,
+                onPressed: _send,
                 icon: const Icon(Icons.send),
               ),
             ],
@@ -733,34 +711,32 @@ class _MessagesPageState extends State<_MessagesPage> {
   }
 }
 
-// ==========================================
-// 6. PROFIL BO'LIMI
-// ==========================================
-class _ProfilePage extends StatefulWidget {
-  final int postCount;
+class ProfileTab extends StatefulWidget {
+  final int myPostsCount;
   final VoidCallback onResetPin;
 
-  const _ProfilePage({
-    required this.postCount,
+  const ProfileTab({
+    super.key,
+    required this.myPostsCount,
     required this.onResetPin,
   });
 
   @override
-  State<_ProfilePage> createState() => _ProfilePageState();
+  State<ProfileTab> createState() => _ProfileTabState();
 }
 
-class _ProfilePageState extends State<_ProfilePage> {
-  String _username = 'Linky foydalanuvchisi';
+class _ProfileTabState extends State<ProfileTab> {
+  String _name = 'Linky foydalanuvchisi';
   int _followers = 128;
-  bool _isFollowing = false;
+  bool _following = false;
 
   void _editName() {
-    final ctrl = TextEditingController(text: _username);
+    final controller = TextEditingController(text: _name);
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
         title: const Text('Ismni o\'zgartirish'),
-        content: TextField(controller: ctrl),
+        content: TextField(controller: controller),
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
@@ -768,9 +744,9 @@ class _ProfilePageState extends State<_ProfilePage> {
           ),
           ElevatedButton(
             onPressed: () {
-              if (ctrl.text.trim().isNotEmpty) {
+              if (controller.text.trim().isNotEmpty) {
                 setState(() {
-                  _username = ctrl.text.trim();
+                  _name = controller.text.trim();
                 });
                 Navigator.pop(ctx);
               }
@@ -798,7 +774,7 @@ class _ProfilePageState extends State<_ProfilePage> {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                _username,
+                _name,
                 style: const TextStyle(
                   fontSize: 20,
                   fontWeight: FontWeight.bold,
@@ -817,7 +793,7 @@ class _ProfilePageState extends State<_ProfilePage> {
               Column(
                 children: [
                   Text(
-                    '${widget.postCount}',
+                    '${widget.myPostsCount}',
                     style: const TextStyle(
                       fontSize: 18,
                       fontWeight: FontWeight.bold,
@@ -858,11 +834,11 @@ class _ProfilePageState extends State<_ProfilePage> {
             child: ElevatedButton(
               onPressed: () {
                 setState(() {
-                  _isFollowing = !_isFollowing;
-                  _followers += _isFollowing ? 1 : -1;
+                  _following = !_following;
+                  _followers += _following ? 1 : -1;
                 });
               },
-              child: Text(_isFollowing ? 'Obuna bo\'lingan' : 'Obuna bo\'lish'),
+              child: Text(_following ? 'Obuna bo\'lingan' : 'Obuna bo\'lish'),
             ),
           ),
           const SizedBox(height: 10),
