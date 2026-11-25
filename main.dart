@@ -435,7 +435,7 @@ class _FeedPage extends StatelessWidget {
   final List> posts;
   final void Function(int index) onToggleLike;
 
-  const _FeedPage({
+  _FeedPage({
     required this.posts,
     required this.onToggleLike,
   });
@@ -575,7 +575,8 @@ class _FeedPage extends StatelessWidget {
 // ==========================================
 class _SearchPage extends StatefulWidget {
   final List> posts;
-  const _SearchPage({required this.posts});
+
+  _SearchPage({required this.posts});
 
   @override
   State<_SearchPage> createState() => _SearchPageState();
@@ -683,53 +684,53 @@ class _MessagesPageState extends State<_MessagesPage> {
                   margin: const EdgeInsets.only(bottom: 8),
                   padding: const EdgeInsets.symmetric(
                     horizontal: 14,
-                                      vertical: 10,
-                ),
-                decoration: BoxDecoration(
-                  color: index == 0
-                      ? Colors.grey.shade200
-                      : const Color(0xFF4A89F3),
-                  borderRadius: BorderRadius.circular(14),
-                ),
-                child: Text(
-                  _messages[index],
-                  style: TextStyle(
-                    color: index == 0 ? Colors.black87 : Colors.white,
+                    vertical: 10,
+                                      ),
+                  decoration: BoxDecoration(
+                    color: index == 0
+                        ? Colors.grey.shade200
+                        : const Color(0xFF4A89F3),
+                    borderRadius: BorderRadius.circular(14),
+                  ),
+                  child: Text(
+                    _messages[index],
+                    style: TextStyle(
+                      color: index == 0 ? Colors.black87 : Colors.white,
+                    ),
                   ),
                 ),
-              ),
-            );
-          },
+              );
+            },
+          ),
         ),
-      ),
-      Padding(
-        padding: const EdgeInsets.all(12),
-        child: Row(
-          children: [
-            Expanded(
-              child: TextField(
-                controller: _msgCtrl,
-                decoration: InputDecoration(
-                  hintText: 'Xabar yozing...',
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24),
+        Padding(
+          padding: const EdgeInsets.all(12),
+          child: Row(
+            children: [
+              Expanded(
+                child: TextField(
+                  controller: _msgCtrl,
+                  decoration: InputDecoration(
+                    hintText: 'Xabar yozing...',
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.circular(24),
+                    ),
+                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   ),
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  onSubmitted: (_) => _sendMessage(),
                 ),
-                onSubmitted: (_) => _sendMessage(),
               ),
-            ),
-            const SizedBox(width: 8),
-            IconButton.filled(
-              onPressed: _sendMessage,
-              icon: const Icon(Icons.send),
-            ),
-          ],
+              const SizedBox(width: 8),
+              IconButton.filled(
+                onPressed: _sendMessage,
+                icon: const Icon(Icons.send),
+              ),
+            ],
+          ),
         ),
-      ),
-    ],
-  );
-}
+      ],
+    );
+  }
 }
 
 // ==========================================
@@ -878,4 +879,3 @@ class _ProfilePageState extends State<_ProfilePage> {
     );
   }
 }
-
